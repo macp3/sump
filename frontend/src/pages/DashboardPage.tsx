@@ -105,13 +105,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           {/* Letter Body - Lorem Ipsum Placeholder */}
           <div className="space-y-4 font-serif-editorial text-lg sm:text-xl text-stone-700 leading-relaxed font-light">
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              In the past 1.5 years I havent been acting right towards you. I didnt show you that I care and I didnt put enough effort into our relationship, especially into assuring you that you are someone special to me.
             </p>
             <p>
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              I am not the best at showing my emotions and how much I care about you but I know how to make software and now I made one for us. Maybe we will never ever use that but I want to show you that I love you and I want to finally use the best of me for you.
             </p>
             <p>
-              Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
+              I made a common space for us that can be used in any way we want. For now I only added common callendar because I remember that we tried to have one before. There is also "I miss you counter" cuz we also used that before. I have couple more ideas which I can implement and please dont hesitate to give me some of ur ideas. I will make a mobile app for the same system as well to have access to our callendar always from everywhere.
+            </p>
+            <p>
+              Selina I want to show you that I want to change, and I want to change for better. I am not the best at forming words so maybe I will try to show it to you differently for now.
+            </p>
+            <p>
+              Im sorry for every shit Ive done
             </p>
           </div>
 
