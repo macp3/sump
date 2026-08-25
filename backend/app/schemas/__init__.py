@@ -10,6 +10,7 @@ from app.schemas.date_proposal import (
 )
 from app.schemas.calendar_event import CalendarEventCreate, CalendarEventResponse
 from app.schemas.app_setting import ClockStateResponse
+from app.schemas.miss_you import MissYouStatsResponse
 
 __all__ = [
     "UserResponse",
@@ -26,5 +27,6 @@ __all__ = [
     "DateIdeaIdea",
     "CalendarEventCreate",
     "CalendarEventResponse",
-    "ClockStateResponse"
+    "ClockStateResponse",
+    "MissYouStatsResponse"
 ]

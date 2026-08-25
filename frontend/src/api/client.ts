@@ -4,7 +4,8 @@ import {
   DateIdea, 
   CalendarEvent, 
   AppConfig,
-  ClockState
+  ClockState,
+  MissYouStats
 } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -174,6 +175,17 @@ class ApiClient {
 
   async startClock(): Promise<ClockState> {
     return this.request('/clock/start', {
+      method: 'POST',
+    });
+  }
+
+  // --- Miss You Pings ---
+  async getMissYouStats(): Promise<MissYouStats> {
+    return this.request('/miss-you');
+  }
+
+  async sendMissYou(): Promise<MissYouStats> {
+    return this.request('/miss-you', {
       method: 'POST',
     });
   }

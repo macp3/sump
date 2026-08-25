@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CalendarEvent } from '../types';
 import { api } from '../api/client';
 import { LoveCounter } from '../components/LoveCounter';
+import { MissYouCard } from '../components/MissYouCard';
 import { 
   Clock, 
   ArrowRight, 
@@ -73,7 +74,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       {/* 1. Love Counter Banner */}
       <LoveCounter />
 
-      {/* 2. Editorial Letter / Missive Card */}
+      {/* 2. Miss You Interaction Card */}
+      <MissYouCard />
+
+      {/* 3. Editorial Letter / Missive Card */}
       <section className="relative arch-surface p-8 sm:p-12 border border-[#e5e0d4] shadow-xs">
         {/* Corner drafting crosshairs */}
         <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
@@ -84,7 +88,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#e5e0d4]/80">
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
-              [ 02 // A LETTER ]
+              [ 03 // A LETTER ]
             </span>
             <span className="text-xs font-mono-tech text-stone-400">
               Private Atelier
@@ -123,12 +127,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </section>
 
-      {/* 3. Upcoming Events (Next 6 Future Events) */}
+      {/* 4. Upcoming Events (Next 6 Future Events) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between pb-2 border-b border-[#e5e0d4]">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
-              [ 03 // UPCOMING EVENTS ]
+              [ 04 // UPCOMING EVENTS ]
             </span>
           </div>
           <button

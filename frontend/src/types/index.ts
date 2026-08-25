@@ -70,3 +70,11 @@ export interface AppConfig {
 export interface ClockState {
   clock_started_at: string | null;
 }
+
+export interface MissYouStats {
+  partner_count: number;
+  my_count: number;
+  partner_last_sent: string | null;
+  my_last_sent: string | null;
+  partner_name: string;
+}
