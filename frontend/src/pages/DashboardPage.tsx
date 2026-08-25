@@ -90,9 +90,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
               [ 03 // A LETTER ]
             </span>
-            <span className="text-xs font-mono-tech text-stone-400">
-              Private Atelier
-            </span>
           </div>
 
           {/* Salutation */}
