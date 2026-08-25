@@ -4,9 +4,9 @@ from typing import List, Union
 import os
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "SUMP - Romantic Couple App"
+    PROJECT_NAME: str = "SUMP - Private Atelier & Web App"
     API_V1_STR: str = "/api"
-    SECRET_KEY: str
+    SECRET_KEY: str = "sump_default_secret_key_please_override_in_env_2026"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 days
     

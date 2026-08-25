@@ -24,7 +24,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS setup
+# CORS setup with support for local development and all Azure Static Web Apps
 origins = settings.CORS_ORIGINS
 if isinstance(origins, str):
     origins = [origins]
@@ -32,6 +32,7 @@ if isinstance(origins, str):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins if origins else ["*"],
+    allow_origin_regex=r"https://.*\.azurestaticapps\.net|http://localhost.*|http://127\.0\.0\.1.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
