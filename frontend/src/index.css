@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #f6f4ee;
+    color: #181c24;
+    letter-spacing: -0.01em;
+  }
+}
+
+.font-serif-editorial {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-mono-tech {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Minimalist architectural scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0ece3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4ccbd;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b58c38;
+}
+
+/* Architectural surfaces */
+.arch-surface {
+  background: #ffffff;
+  border: 1px solid #e5e0d4;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+}
+
+.arch-card {
+  background: #ffffff;
+  border: 1px solid #e7e2d6;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.arch-card:hover {
+  border-color: #c5a059;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
+}
+
+.arch-brass-badge {
+  background: #fbf7ee;
+  border: 1px solid #d8c08a;
+  color: #8c691f;
+}
+
+.arch-stone-badge {
+  background: #f3f0e8;
+  border: 1px solid #ddd7ca;
+  color: #4b463d;
+}
+
+.arch-emerald-badge {
+  background: #edf8f2;
+  border: 1px solid #bce6d0;
+  color: #166534;
+}
+
+.arch-sky-badge {
+  background: #f0f7ff;
+  border: 1px solid #bae0ff;
+  color: #0369a1;
+}
+
+.arch-purple-badge {
+  background: #fbf5ff;
+  border: 1px solid #ebd4ff;
+  color: #7e22ce;
+}
