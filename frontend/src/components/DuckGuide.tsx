@@ -144,8 +144,13 @@ export const DuckGuide: React.FC = () => {
     const dx = targetX - currentX;
     const dy = targetY - currentY;
 
+    // Always update facingLeft whenever there is noticeable horizontal motion
+    if (Math.abs(dx) > 3) {
+      setFacingLeft(dx < 0);
+    }
+
     // Check if vertical motion is dominant
-    if (Math.abs(dy) > Math.abs(dx) * 0.85) {
+    if (Math.abs(dy) > Math.abs(dx) * 1.25) {
       if (dy < 0) {
         setDirection('up'); // Moving UP: back turned to viewer
       } else {
@@ -153,7 +158,6 @@ export const DuckGuide: React.FC = () => {
       }
     } else {
       setDirection('side'); // Moving horizontally: side profile
-      setFacingLeft(dx < 0);
     }
   };
 
@@ -508,19 +512,20 @@ export const DuckGuide: React.FC = () => {
             }`}
           />
 
-          {/* Stepping Duck Sprite Frame */}
-          <img
-            src={getCurrentDuckImage()}
-            alt="Adult Duck"
-            style={{
-              transform: direction === 'side' && facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
-              transformOrigin: 'center bottom',
-            }}
-            className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
-              isWaddling ? 'duck-walk-hop-anim' : ''
-            }`}
-            draggable={false}
-          />
+          {/* Waddling Hop Wrapper - separates vertical bobbing from directional scaleX flip */}
+          <div className={isWaddling ? 'duck-walk-hop-anim' : ''}>
+            {/* Stepping Duck Sprite Frame */}
+            <img
+              src={getCurrentDuckImage()}
+              alt="Adult Duck"
+              style={{
+                transform: direction === 'side' && facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
+                transformOrigin: 'center bottom',
+              }}
+              className="w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none"
+              draggable={false}
+            />
+          </div>
         </div>
       </div>
     </>
