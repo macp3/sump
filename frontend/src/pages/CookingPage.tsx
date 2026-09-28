@@ -273,6 +273,17 @@ export const CookingPage: React.FC = () => {
     sunday: 'Sunday'
   };
 
+  const dayIndexToDay: Record<number, DayOfWeek> = {
+    0: 'sunday',
+    1: 'monday',
+    2: 'tuesday',
+    3: 'wednesday',
+    4: 'thursday',
+    5: 'friday',
+    6: 'saturday'
+  };
+  const todayDay: DayOfWeek = dayIndexToDay[new Date().getDay()];
+
   // Helper badges
   const getFreshnessBadge = (fresh: ItemFreshness) => {
     switch (fresh) {
@@ -439,27 +450,57 @@ export const CookingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+          <div className="space-y-4">
             {daysOfWeekOrder.map((day) => {
               const dayMeals = mealPlans.filter(m => m.day_of_week === day);
               const isWeekend = day === 'saturday' || day === 'sunday';
+              const isToday = day === todayDay;
 
               return (
                 <div
                   key={day}
-                  className={`border rounded-xl flex flex-col min-h-[380px] transition-all shadow-xs ${
-                    isWeekend ? 'bg-[#fcfaf4] border-[#d8cca8]' : 'bg-[#fcfbf7] border-[#e5e0d4]'
+                  className={`border rounded-xl transition-all shadow-xs overflow-hidden ${
+                    isToday
+                      ? 'bg-[#fdfbf6] border-[#cbb377] ring-1 ring-[#cbb377]/40'
+                      : isWeekend
+                      ? 'bg-[#fcfaf4] border-[#d8cca8]'
+                      : 'bg-[#fcfbf7] border-[#e5e0d4]'
                   }`}
                 >
                   {/* Day Header */}
-                  <div className="p-3 border-b border-[#e5e0d4] flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] font-mono-tech uppercase text-stone-400 block">
-                        {isWeekend ? 'Weekend' : 'Weekday'}
-                      </span>
-                      <h3 className="font-serif-editorial text-lg text-stone-900 font-medium">
-                        {dayLabels[day]}
-                      </h3>
+                  <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-[#e5e0d4] flex items-center justify-between gap-3 bg-white/70">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center font-mono-tech ${
+                          isToday
+                            ? 'bg-[#9c7526] text-white shadow-xs font-bold'
+                            : isWeekend
+                            ? 'bg-amber-100/70 text-amber-900 border border-amber-200 font-bold'
+                            : 'bg-stone-100 text-stone-700 border border-stone-200 font-medium'
+                        }`}
+                      >
+                        <span className="text-xs uppercase tracking-wider">{day.slice(0, 3)}</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-serif-editorial text-lg sm:text-xl text-stone-900 font-medium">
+                            {dayLabels[day]}
+                          </h3>
+                          {isToday && (
+                            <span className="px-2 py-0.5 rounded-full bg-[#9c7526]/15 text-[#9c7526] border border-[#9c7526]/30 text-[10px] font-mono-tech font-bold uppercase tracking-wider">
+                              Today
+                            </span>
+                          )}
+                          <span className="text-[10px] font-mono-tech uppercase text-stone-400">
+                            {isWeekend ? 'Weekend' : 'Weekday'}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-mono-tech text-stone-500">
+                          {dayMeals.length === 0
+                            ? 'No meals planned'
+                            : `${dayMeals.length} ${dayMeals.length === 1 ? 'meal' : 'meals'} scheduled`}
+                        </span>
+                      </div>
                     </div>
 
                     <button
@@ -468,134 +509,162 @@ export const CookingPage: React.FC = () => {
                         setDefaultDay(day);
                         setIsMealModalOpen(true);
                       }}
-                      className="w-6 h-6 rounded bg-stone-100 hover:bg-[#181c24] text-stone-600 hover:text-[#fcd34d] flex items-center justify-center transition-colors"
-                      title={`Add meal for ${dayLabels[day]}`}
+                      className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-[#181c24] text-stone-700 hover:text-[#fcd34d] text-xs font-mono-tech uppercase font-medium flex items-center gap-1.5 transition-colors border border-stone-200 hover:border-transparent cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Add Meal</span>
+                      <span className="sm:hidden">Add</span>
                     </button>
                   </div>
 
                   {/* Meals for this day */}
-                  <div className="p-3 flex-1 space-y-3">
+                  <div className="p-4 sm:p-5">
                     {dayMeals.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center py-10 text-center text-stone-400">
-                        <UtensilsCrossed className="w-5 h-5 opacity-40 mb-1" />
-                        <span className="text-[11px] font-mono-tech">No meals planned</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg border border-dashed border-[#e5e0d4] bg-stone-50/40 text-stone-400">
+                        <div className="flex items-center gap-2.5 text-xs font-mono-tech">
+                          <UtensilsCrossed className="w-4 h-4 opacity-40 shrink-0" />
+                          <span>No meals planned for {dayLabels[day]} yet.</span>
+                        </div>
                         <button
                           onClick={() => {
                             setEditingMeal(null);
                             setDefaultDay(day);
                             setIsMealModalOpen(true);
                           }}
-                          className="mt-2 text-[10px] font-mono-tech uppercase text-[#9c7526] hover:underline"
+                          className="text-xs font-mono-tech uppercase text-[#9c7526] hover:text-[#735213] font-semibold flex items-center gap-1 self-start sm:self-auto cursor-pointer"
                         >
-                          + Propose
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Propose Dish</span>
                         </button>
                       </div>
                     ) : (
-                      dayMeals.map((meal) => {
-                        const chefBadge = getChefBadge(meal.chef);
-                        const statusBadge = getMealStatusBadge(meal.status);
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {dayMeals.map((meal) => {
+                          const chefBadge = getChefBadge(meal.chef);
+                          const statusBadge = getMealStatusBadge(meal.status);
 
-                        return (
-                          <div
-                            key={meal.id}
-                            className={`p-3 rounded-lg border text-xs font-mono-tech space-y-2 transition-all ${
-                              meal.status === 'cooked'
-                                ? 'bg-stone-100/70 border-stone-200 opacity-60'
-                                : 'bg-white border-[#e5e0d4] hover:border-stone-400 shadow-2xs'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-1.5">
-                              <span className="text-[9px] uppercase tracking-wider font-semibold text-stone-400 block">
-                                {meal.meal_type}
-                              </span>
-                              <span className={`px-1.5 py-0.2 text-[9px] uppercase tracking-wider rounded border font-semibold ${statusBadge.bg}`}>
-                                {statusBadge.label}
-                              </span>
-                            </div>
+                          return (
+                            <div
+                              key={meal.id}
+                              className={`p-4 rounded-xl border font-mono-tech flex flex-col justify-between transition-all ${
+                                meal.status === 'cooked'
+                                  ? 'bg-stone-100/60 border-stone-200 opacity-70'
+                                  : 'bg-white border-[#e5e0d4] hover:border-stone-400 shadow-2xs'
+                              }`}
+                            >
+                              <div className="space-y-3">
+                                {/* Header: Type + Status */}
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-[10px] uppercase tracking-wider font-semibold text-stone-400 px-2 py-0.5 rounded bg-stone-100">
+                                    {meal.meal_type}
+                                  </span>
+                                  <span className={`px-2 py-0.5 text-[10px] uppercase tracking-wider rounded border font-semibold ${statusBadge.bg}`}>
+                                    {statusBadge.label}
+                                  </span>
+                                </div>
 
-                            <h4 className="font-serif-editorial text-base text-stone-900 font-medium leading-snug">
-                              {meal.recipe_title}
-                            </h4>
+                                {/* Dish Title */}
+                                <div>
+                                  <h4 className="font-serif-editorial text-lg text-stone-900 font-medium leading-snug">
+                                    {meal.recipe_title}
+                                  </h4>
+                                </div>
 
-                            <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                              <span className={`px-1.5 py-0.5 text-[9px] rounded border font-medium ${chefBadge.bg}`}>
-                                {chefBadge.label}
-                              </span>
-                              {meal.prep_time_minutes && (
-                                <span className="text-[10px] text-stone-500 flex items-center gap-1">
-                                  <Clock className="w-3 h-3 text-stone-400" />
-                                  {meal.prep_time_minutes}m
-                                </span>
-                              )}
-                            </div>
+                                {/* Chef & Prep Time */}
+                                <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                                  <span className={`px-2 py-0.5 text-[10px] rounded border font-medium ${chefBadge.bg}`}>
+                                    {chefBadge.label}
+                                  </span>
+                                  {meal.prep_time_minutes && (
+                                    <span className="text-[11px] text-stone-500 flex items-center gap-1">
+                                      <Clock className="w-3.5 h-3.5 text-stone-400" />
+                                      {meal.prep_time_minutes} min
+                                    </span>
+                                  )}
+                                </div>
 
-                            {meal.notes && (
-                              <p className="text-[11px] text-stone-600 font-sans line-clamp-2 italic pt-1">
-                                "{meal.notes}"
-                              </p>
-                            )}
-
-                            {meal.ingredients && (
-                              <div className="pt-1.5 border-t border-stone-100">
-                                <span className="text-[9px] uppercase text-stone-400 block mb-0.5">Ingredients</span>
-                                <p className="text-[10px] text-stone-600 font-mono-tech line-clamp-2">
-                                  {meal.ingredients}
-                                </p>
-                                <button
-                                  onClick={() => handleAddIngredientsToShopping(meal)}
-                                  className="mt-1 text-[10px] text-[#9c7526] hover:text-[#735213] font-semibold flex items-center gap-1 transition-colors"
-                                >
-                                  <ListPlus className="w-3 h-3" />
-                                  <span>+ Add to Shopping</span>
-                                </button>
-                              </div>
-                            )}
-
-                            {/* Card Footer Actions */}
-                            <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400">
-                              <div className="flex items-center gap-1.5">
-                                {meal.status === 'proposed' && (
-                                  <button
-                                    onClick={() => handleUpdateMealStatus(meal.id, 'accepted')}
-                                    className="text-emerald-700 hover:underline font-semibold text-[10px] uppercase"
-                                  >
-                                    Accept
-                                  </button>
+                                {/* Notes */}
+                                {meal.notes && (
+                                  <p className="text-xs text-stone-600 font-sans italic bg-stone-50/70 p-2.5 rounded border border-stone-100">
+                                    "{meal.notes}"
+                                  </p>
                                 )}
-                                {meal.status === 'accepted' && (
-                                  <button
-                                    onClick={() => handleUpdateMealStatus(meal.id, 'cooked')}
-                                    className="text-blue-700 hover:underline font-semibold text-[10px] uppercase"
-                                  >
-                                    Cooked
-                                  </button>
+
+                                {/* Ingredients */}
+                                {meal.ingredients && (
+                                  <div className="pt-2 border-t border-stone-100 space-y-1.5">
+                                    <span className="text-[10px] uppercase text-stone-400 font-semibold block">
+                                      Ingredients
+                                    </span>
+                                    <p className="text-xs text-stone-700 font-mono-tech leading-relaxed">
+                                      {meal.ingredients}
+                                    </p>
+                                    <button
+                                      onClick={() => handleAddIngredientsToShopping(meal)}
+                                      className="mt-1 text-xs text-[#9c7526] hover:text-[#735213] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                    >
+                                      <ListPlus className="w-3.5 h-3.5" />
+                                      <span>Add ingredients to shopping list</span>
+                                    </button>
+                                  </div>
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  onClick={() => {
-                                    setEditingMeal(meal);
-                                    setDefaultDay(meal.day_of_week);
-                                    setIsMealModalOpen(true);
-                                  }}
-                                  className="text-stone-400 hover:text-stone-700"
-                                >
-                                  <Edit3 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteMealPlan(meal.id)}
-                                  className="text-stone-400 hover:text-rose-600"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
+                              {/* Card Footer Actions */}
+                              <div className="pt-3 mt-4 border-t border-stone-100 flex items-center justify-between text-xs text-stone-400">
+                                <div className="flex items-center gap-2">
+                                  {meal.status === 'proposed' && (
+                                    <button
+                                      onClick={() => handleUpdateMealStatus(meal.id, 'accepted')}
+                                      className="px-2.5 py-1 rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 font-semibold text-[11px] uppercase transition-colors cursor-pointer"
+                                    >
+                                      Accept Recipe
+                                    </button>
+                                  )}
+                                  {meal.status === 'accepted' && (
+                                    <button
+                                      onClick={() => handleUpdateMealStatus(meal.id, 'cooked')}
+                                      className="px-2.5 py-1 rounded bg-blue-50 text-blue-800 border border-blue-300 hover:bg-blue-100 font-semibold text-[11px] uppercase transition-colors cursor-pointer"
+                                    >
+                                      Mark Cooked
+                                    </button>
+                                  )}
+                                  {meal.status === 'cooked' && (
+                                    <button
+                                      onClick={() => handleUpdateMealStatus(meal.id, 'accepted')}
+                                      className="text-stone-400 hover:text-stone-600 font-semibold text-[10px] uppercase transition-colors cursor-pointer"
+                                      title="Reset to accepted"
+                                    >
+                                      Re-plan
+                                    </button>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setEditingMeal(meal);
+                                      setDefaultDay(meal.day_of_week);
+                                      setIsMealModalOpen(true);
+                                    }}
+                                    className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+                                    title="Edit meal"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteMealPlan(meal.id)}
+                                    className="p-1 rounded text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                    title="Delete meal"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -654,7 +723,6 @@ export const CookingPage: React.FC = () => {
               { id: 'all', label: 'All' },
               { id: 'produce', label: 'Produce' },
               { id: 'dairy', label: 'Dairy' },
-              { id: 'meat_fish', label: 'Meat & Fish' },
               { id: 'bakery', label: 'Bakery' },
               { id: 'drinks', label: 'Drinks' },
               { id: 'pantry', label: 'Pantry / Spices' },
@@ -1001,7 +1069,6 @@ export const CookingPage: React.FC = () => {
                   >
                     <option value="produce">Produce (Fruits & Veggies)</option>
                     <option value="dairy">Dairy & Cheese</option>
-                    <option value="meat_fish">Meat & Seafood</option>
                     <option value="bakery">Bakery & Bread</option>
                     <option value="drinks">Drinks & Wine</option>
                     <option value="pantry">Pantry & Spices</option>
