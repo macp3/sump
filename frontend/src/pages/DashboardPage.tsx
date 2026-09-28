@@ -15,7 +15,7 @@ import maciejAvatar from '../assets/Maciej.jpg';
 import selinaAvatar from '../assets/Selina.jpg';
 
 interface DashboardPageProps {
-  onNavigateToCalendar: () => void;
+  onNavigateToCalendar: (event?: CalendarEvent) => void;
   onOpenCreateEvent: () => void;
 }
 
@@ -139,7 +139,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </span>
           </div>
           <button
-            onClick={onNavigateToCalendar}
+            onClick={() => onNavigateToCalendar()}
             className="text-xs font-mono-tech uppercase tracking-wider text-stone-500 hover:text-[#9c7526] flex items-center gap-1.5 transition-colors font-medium"
           >
             Open Calendar <ArrowRight className="w-3 h-3" />
@@ -176,7 +176,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               return (
                 <div
                   key={evt.id}
-                  onClick={onNavigateToCalendar}
+                  onClick={() => onNavigateToCalendar(evt)}
                   className={`cursor-pointer arch-card p-5 hover:border-[#b58c38] transition-all flex flex-col justify-between border ${color.border} ${color.bg}`}
                 >
                   <div>

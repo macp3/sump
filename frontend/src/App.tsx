@@ -10,6 +10,7 @@ import { CreateCalendarEventModal } from './components/CreateCalendarEventModal'
 import { PasswordChangeModal } from './components/PasswordChangeModal';
 import { DuckGuide } from './components/DuckGuide';
 import { api } from './api/client';
+import { CalendarEvent } from './types';
 
 const MainLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -20,6 +21,10 @@ const MainLayout: React.FC = () => {
   const [isPasswordChangeOpen, setIsPasswordChangeOpen] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null);
   const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
+
+  // Target event navigation from Dashboard to Calendar
+  const [targetCalendarEventId, setTargetCalendarEventId] = useState<number | null>(null);
+  const [targetCalendarDate, setTargetCalendarDate] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -62,7 +67,16 @@ const MainLayout: React.FC = () => {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {activeTab === 'dashboard' && (
           <DashboardPage
-            onNavigateToCalendar={() => setActiveTab('calendar')}
+            onNavigateToCalendar={(evt) => {
+              if (evt) {
+                setTargetCalendarEventId(evt.id);
+                setTargetCalendarDate(evt.event_date);
+              } else {
+                setTargetCalendarEventId(null);
+                setTargetCalendarDate(null);
+              }
+              setActiveTab('calendar');
+            }}
             onOpenCreateEvent={() => {
               setSelectedCalendarDate(null);
               setIsCreateEventOpen(true);
@@ -74,6 +88,12 @@ const MainLayout: React.FC = () => {
           <CalendarPage
             onOpenCreateEventForDay={handleOpenEventForDay}
             onNavigateToTrips={() => setActiveTab('trips')}
+            targetEventId={targetCalendarEventId}
+            initialDate={targetCalendarDate}
+            onClearTargetEvent={() => {
+              setTargetCalendarEventId(null);
+              setTargetCalendarDate(null);
+            }}
             refreshKey={calendarRefreshKey}
           />
         )}

@@ -32,6 +32,9 @@ import selinaAvatar from '../assets/Selina.jpg';
 interface CalendarPageProps {
   onOpenCreateEventForDay: (dateStr?: string) => void;
   onNavigateToTrips?: (tripId?: number) => void;
+  targetEventId?: number | null;
+  initialDate?: string | null;
+  onClearTargetEvent?: () => void;
   refreshKey?: number;
 }
 
@@ -53,14 +56,51 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string
 export const CalendarPage: React.FC<CalendarPageProps> = ({
   onOpenCreateEventForDay,
   onNavigateToTrips,
+  targetEventId,
+  initialDate,
+  onClearTargetEvent,
   refreshKey,
 }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    if (initialDate) {
+      try {
+        return parseISO(initialDate);
+      } catch {}
+    }
+    return new Date();
+  });
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (initialDate) {
+      try {
+        return parseISO(initialDate);
+      } catch {}
+    }
+    return new Date();
+  });
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const targetEventRef = React.useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (initialDate) {
+      try {
+        const d = parseISO(initialDate);
+        setSelectedDate(d);
+        setCurrentMonth(d);
+      } catch (err) {
+        console.error('Failed to parse initial date:', err);
+      }
+    }
+  }, [initialDate, targetEventId]);
+
+  useEffect(() => {
+    if (targetEventId && targetEventRef.current) {
+      targetEventRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [targetEventId, events, selectedDate]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -108,6 +148,13 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
     });
   };
 
+  const handleSelectDay = (day: Date) => {
+    setSelectedDate(day);
+    if (targetEventId && onClearTargetEvent) {
+      onClearTargetEvent();
+    }
+  };
+
   const rows = [];
   let days = [];
   let day = startDate;
@@ -123,7 +170,7 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
       days.push(
         <div
           key={cloneDay.toISOString()}
-          onClick={() => setSelectedDate(cloneDay)}
+          onClick={() => handleSelectDay(cloneDay)}
           className={`min-h-[90px] sm:min-h-[110px] p-2 border-b border-r border-[#e5e0d4] transition-all cursor-pointer flex flex-col justify-between ${
             !isCurrentMonth ? 'bg-[#faf8f4] text-stone-300' : 'bg-white text-stone-800'
           } ${isSelected ? 'ring-2 ring-inset ring-[#9c7526] bg-[#fcf9f2]' : 'hover:bg-[#fbf9f4]'}`}
@@ -278,11 +325,17 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
                   const author = e.creator?.display_name || 'Maciej';
                   const isAuthorSelina = author.toLowerCase().includes('selina');
                   const authorPhoto = isAuthorSelina ? selinaAvatar : maciejAvatar;
+                  const isTarget = targetEventId === e.id;
 
                   return (
                     <div
                       key={`sel-event-${e.id}`}
-                      className={`p-4 border relative ${color.bg} ${color.border}`}
+                      ref={isTarget ? targetEventRef : undefined}
+                      className={`p-4 border relative transition-all ${color.bg} ${color.border} ${
+                        isTarget
+                          ? 'ring-2 ring-[#9c7526] shadow-md border-[#9c7526]'
+                          : 'shadow-2xs'
+                      }`}
                     >
                       {/* Top Header: Author with Larger Photo & Color Swatch (No Category Name) */}
                       <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -298,6 +351,11 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
                             </span>
                           </div>
                           <span className={`w-3 h-3 rounded-full ${color.dot} ml-1 shadow-xs`} title="Category color" />
+                          {isTarget && (
+                            <span className="ml-1 text-[10px] font-mono-tech uppercase font-bold text-[#9c7526] bg-[#9c7526]/15 px-2 py-0.5 rounded border border-[#9c7526]/30">
+                              Selected
+                            </span>
+                          )}
                         </div>
 
                         {e.trip_id ? (
