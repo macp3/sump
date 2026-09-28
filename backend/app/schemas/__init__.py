@@ -25,6 +25,17 @@ from app.schemas.trip import (
     TripItineraryItemUpdate,
     TripItineraryItemResponse
 )
+from app.schemas.cooking import (
+    FridgeItemCreate,
+    FridgeItemUpdate,
+    FridgeItemResponse,
+    ShoppingItemCreate,
+    ShoppingItemUpdate,
+    ShoppingItemResponse,
+    MealPlanCreate,
+    MealPlanUpdate,
+    MealPlanResponse
+)
 
 __all__ = [
     "UserResponse",
@@ -54,5 +65,14 @@ __all__ = [
     "TripLodgingResponse",
     "TripItineraryItemCreate",
     "TripItineraryItemUpdate",
-    "TripItineraryItemResponse"
+    "TripItineraryItemResponse",
+    "FridgeItemCreate",
+    "FridgeItemUpdate",
+    "FridgeItemResponse",
+    "ShoppingItemCreate",
+    "ShoppingItemUpdate",
+    "ShoppingItemResponse",
+    "MealPlanCreate",
+    "MealPlanUpdate",
+    "MealPlanResponse"
 ]

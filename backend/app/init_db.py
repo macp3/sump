@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.date_proposal import DateProposal
 from app.models.calendar_event import CalendarEvent
 from app.models.trip import Trip, TripTransport, TripLodging, TripItineraryItem
+from app.models.cooking import FridgeItem, ShoppingItem, MealPlan
 
 def init_db():
     Base.metadata.create_all(bind=engine)
@@ -198,6 +199,123 @@ def init_db():
                 db.add(item3)
                 db.commit()
                 print("[INFO] Seeded sample trip 'Spring Italian Getaway' with travel details!")
+
+        # --- Seed Cooking: Fridge & Pantry Items ---
+        if db.query(FridgeItem).count() == 0:
+            first_user = db.query(User).first()
+            if first_user:
+                starter_fridge = [
+                    FridgeItem(name="Parmigiano Reggiano", quantity="250g", category="dairy", storage_location="fridge", status="fresh", notes="Aged 24 months", creator_id=first_user.id),
+                    FridgeItem(name="Fresh Basil", quantity="1 bunch", category="produce", storage_location="fridge", status="use_soon", notes="Keep in water glass", creator_id=first_user.id),
+                    FridgeItem(name="Cherry Tomatoes", quantity="500g", category="produce", storage_location="fridge", status="fresh", creator_id=first_user.id),
+                    FridgeItem(name="Burrata Pugliese", quantity="2 pcs", category="dairy", storage_location="fridge", status="fresh", creator_id=first_user.id),
+                    FridgeItem(name="Garlic", quantity="1 bulb", category="produce", storage_location="pantry", status="fresh", creator_id=first_user.id),
+                    FridgeItem(name="Barista Oat Milk", quantity="1L", category="drinks", storage_location="fridge", status="fresh", creator_id=first_user.id),
+                    FridgeItem(name="Artisanal Sourdough", quantity="1 loaf", category="bakery", storage_location="pantry", status="use_soon", creator_id=first_user.id),
+                ]
+                db.add_all(starter_fridge)
+                db.commit()
+                print("[INFO] Seeded starter fridge and pantry items!")
+
+        # --- Seed Cooking: Shopping List Items ---
+        if db.query(ShoppingItem).count() == 0:
+            first_user = db.query(User).first()
+            if first_user:
+                starter_shopping = [
+                    ShoppingItem(name="Arborio Rice", quantity="1 kg", category="pantry", urgency="normal", notes="For Tuesday risotto", creator_id=first_user.id),
+                    ShoppingItem(name="Shallots", quantity="4 pcs", category="produce", urgency="normal", creator_id=first_user.id),
+                    ShoppingItem(name="Extra Virgin Olive Oil", quantity="750ml", category="pantry", urgency="high", notes="Cold pressed Italian", creator_id=first_user.id),
+                    ShoppingItem(name="Wild Porcini Mushrooms", quantity="300g", category="produce", urgency="normal", creator_id=first_user.id),
+                    ShoppingItem(name="Prosecco Valdobbiadene", quantity="1 bottle", category="drinks", urgency="normal", notes="Weekend celebration", creator_id=first_user.id),
+                ]
+                db.add_all(starter_shopping)
+                db.commit()
+                print("[INFO] Seeded starter shopping list items!")
+
+        # --- Seed Cooking: Weekly Meal Plan ---
+        if db.query(MealPlan).count() == 0:
+            first_user = db.query(User).first()
+            if first_user:
+                starter_meals = [
+                    MealPlan(
+                        day_of_week="monday",
+                        meal_type="dinner",
+                        recipe_title="Handmade Tagliatelle with Cherry Tomatoes & Burrata",
+                        chef="both",
+                        prep_time_minutes=35,
+                        status="accepted",
+                        ingredients="Tagliatelle pasta, Cherry tomatoes, Garlic, Fresh basil, Burrata cheese, Olive oil",
+                        notes="Fresh, simple, and comforting after Monday work.",
+                        creator_id=first_user.id
+                    ),
+                    MealPlan(
+                        day_of_week="tuesday",
+                        meal_type="dinner",
+                        recipe_title="Creamy Wild Mushroom Risotto",
+                        chef="maciej",
+                        prep_time_minutes=45,
+                        status="proposed",
+                        ingredients="Arborio rice, Wild mushrooms, Shallots, White wine, Vegetable broth, Parmigiano Reggiano, Butter",
+                        notes="Slow-stirred arborio rice with rich mushroom reduction.",
+                        creator_id=first_user.id
+                    ),
+                    MealPlan(
+                        day_of_week="wednesday",
+                        meal_type="dinner",
+                        recipe_title="Lemon Herb Salmon & Roasted Asparagus",
+                        chef="selina",
+                        prep_time_minutes=30,
+                        status="proposed",
+                        ingredients="Salmon fillets, Asparagus, Lemon, Olive oil, Fresh dill, Garlic",
+                        notes="Light and healthy mid-week dinner.",
+                        creator_id=first_user.id
+                    ),
+                    MealPlan(
+                        day_of_week="thursday",
+                        meal_type="dinner",
+                        recipe_title="Italian Bistro Promenade",
+                        chef="dining_out",
+                        status="proposed",
+                        notes="Trying the newly opened quiet pasta place in old town.",
+                        creator_id=first_user.id
+                    ),
+                    MealPlan(
+                        day_of_week="friday",
+                        meal_type="dinner",
+                        recipe_title="Neapolitan Pizza Night",
+                        chef="both",
+                        prep_time_minutes=60,
+                        status="accepted",
+                        ingredients="Pizza dough, San Marzano tomato sauce, Mozzarella di bufala, Fresh basil, Olive oil",
+                        notes="Friday tradition with cold drinks and favorite playlist.",
+                        creator_id=first_user.id
+                    ),
+                    MealPlan(
+                        day_of_week="saturday",
+                        meal_type="dinner",
+                        recipe_title="Slow-Cooked Tuscan Ragu & Chianti",
+                        chef="both",
+                        prep_time_minutes=90,
+                        status="proposed",
+                        ingredients="Beef chuck, Pancetta, Carrots, Celery, Onions, Red wine, Tagliatelle",
+                        notes="Slow-simmered weekend culinary project.",
+                        creator_id=first_user.id
+                    ),
+                    MealPlan(
+                        day_of_week="sunday",
+                        meal_type="breakfast",
+                        recipe_title="Sunday Atelier Brunch Shakshuka",
+                        chef="maciej",
+                        prep_time_minutes=25,
+                        status="proposed",
+                        ingredients="Fresh eggs, Crushed tomatoes, Bell peppers, Feta cheese, Sourdough bread",
+                        notes="Served directly in the cast-iron skillet with hot espresso.",
+                        creator_id=first_user.id
+                    )
+                ]
+                db.add_all(starter_meals)
+                db.commit()
+                print("[INFO] Seeded weekly meal plan proposals!")
     finally:
         db.close()
 

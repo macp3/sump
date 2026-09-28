@@ -156,3 +156,59 @@ export interface Trip {
   lodgings: TripLodging[];
   itinerary_items: TripItineraryItem[];
 }
+
+// --- Cooking & Kitchen Inventory Types ---
+export type ItemCategory = 'produce' | 'dairy' | 'meat_fish' | 'pantry' | 'bakery' | 'drinks' | 'household' | 'other';
+export type StorageLocation = 'fridge' | 'freezer' | 'pantry';
+export type ItemFreshness = 'fresh' | 'use_soon' | 'expired';
+export type ShoppingUrgency = 'low' | 'normal' | 'high';
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'dessert' | 'snack';
+export type MealChef = 'maciej' | 'selina' | 'both' | 'dining_out';
+export type MealStatus = 'proposed' | 'accepted' | 'cooked';
+
+export interface FridgeItem {
+  id: number;
+  name: string;
+  quantity?: string;
+  category: ItemCategory;
+  storage_location: StorageLocation;
+  expiry_date?: string;
+  status: ItemFreshness;
+  notes?: string;
+  creator_id: number;
+  created_at: string;
+  updated_at: string;
+  creator?: User;
+}
+
+export interface ShoppingItem {
+  id: number;
+  name: string;
+  quantity?: string;
+  category: ItemCategory;
+  is_bought: boolean;
+  urgency: ShoppingUrgency;
+  notes?: string;
+  creator_id: number;
+  created_at: string;
+  updated_at: string;
+  creator?: User;
+}
+
+export interface MealPlan {
+  id: number;
+  day_of_week: DayOfWeek;
+  meal_date?: string;
+  meal_type: MealType;
+  recipe_title: string;
+  chef: MealChef;
+  ingredients?: string;
+  prep_time_minutes?: number;
+  status: MealStatus;
+  notes?: string;
+  creator_id: number;
+  created_at: string;
+  updated_at: string;
+  creator?: User;
+}

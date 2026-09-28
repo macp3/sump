@@ -7,14 +7,15 @@ import {
   X, 
   Layers, 
   CalendarRange,
-  Compass
+  Compass,
+  ChefHat
 } from 'lucide-react';
 import maciejAvatar from '../assets/Maciej.jpg';
 import selinaAvatar from '../assets/Selina.jpg';
 
 interface NavbarProps {
-  activeTab: 'dashboard' | 'calendar' | 'trips';
-  setActiveTab: (tab: 'dashboard' | 'calendar' | 'trips') => void;
+  activeTab: 'dashboard' | 'calendar' | 'trips' | 'cooking';
+  setActiveTab: (tab: 'dashboard' | 'calendar' | 'trips' | 'cooking') => void;
   onOpenPasswordChange: () => void;
 }
 
@@ -86,6 +87,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="text-[10px] text-stone-400">03 /</span>
             Trips
             {activeTab === 'trips' && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#9c7526]" />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('cooking')}
+            className={`px-4 py-2 transition-all flex items-center gap-2 relative ${
+              activeTab === 'cooking'
+                ? 'text-[#9c7526] font-semibold'
+                : 'text-stone-500 hover:text-stone-900'
+            }`}
+          >
+            <span className="text-[10px] text-stone-400">04 /</span>
+            Cooking
+            {activeTab === 'cooking' && (
               <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#9c7526]" />
             )}
           </button>
@@ -194,6 +210,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Compass className="w-4 h-4" />
             03 / Trips
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('cooking');
+              setIsMenuOpen(false);
+            }}
+            className={`w-full text-left px-4 py-2.5 flex items-center gap-2.5 ${
+              activeTab === 'cooking' ? 'bg-[#fcf7ec] text-[#9c7526] border-l-2 border-[#9c7526] font-semibold' : 'text-stone-700 hover:bg-stone-50'
+            }`}
+          >
+            <ChefHat className="w-4 h-4" />
+            04 / Cooking
           </button>
         </div>
       )}

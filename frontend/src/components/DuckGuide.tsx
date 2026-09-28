@@ -34,6 +34,10 @@ const TOUR_STEPS: TourStep[] = [
     text: "In the Trips tab, you can propose romantic getaways, compare flights and hotels, budget expenses, and build day-by-day itineraries!",
   },
   {
+    title: "Culinary Atelier",
+    text: "In the Cooking tab, you can track fridge & pantry inventory, manage your shared grocery shopping list, and plan delicious meals together for the week!",
+  },
+  {
     title: "QUACK!",
     text: "QUACK QUACK QUACK QUACK QUACK",
   },

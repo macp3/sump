@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { DashboardPage } from './pages/DashboardPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { TripsPage } from './pages/TripsPage';
+import { CookingPage } from './pages/CookingPage';
 import { CreateCalendarEventModal } from './components/CreateCalendarEventModal';
 import { PasswordChangeModal } from './components/PasswordChangeModal';
 import { DuckGuide } from './components/DuckGuide';
@@ -12,7 +13,7 @@ import { api } from './api/client';
 
 const MainLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'trips'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'trips' | 'cooking'>('dashboard');
 
   // Modals state
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
@@ -78,6 +79,10 @@ const MainLayout: React.FC = () => {
 
         {activeTab === 'trips' && (
           <TripsPage />
+        )}
+
+        {activeTab === 'cooking' && (
+          <CookingPage />
         )}
       </main>
 

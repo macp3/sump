@@ -4,6 +4,7 @@ from app.models.calendar_event import CalendarEvent
 from app.models.app_setting import AppSetting
 from app.models.miss_you import MissYouLog
 from app.models.trip import Trip, TripTransport, TripLodging, TripItineraryItem
+from app.models.cooking import FridgeItem, ShoppingItem, MealPlan
 
 __all__ = [
     "User", 
@@ -14,5 +15,8 @@ __all__ = [
     "Trip",
     "TripTransport",
     "TripLodging",
-    "TripItineraryItem"
+    "TripItineraryItem",
+    "FridgeItem",
+    "ShoppingItem",
+    "MealPlan"
 ]

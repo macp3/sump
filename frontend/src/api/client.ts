@@ -9,7 +9,10 @@ import {
   Trip,
   TripTransport,
   TripLodging,
-  TripItineraryItem
+  TripItineraryItem,
+  FridgeItem,
+  ShoppingItem,
+  MealPlan
 } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000/api' : '/api');
@@ -296,6 +299,105 @@ class ApiClient {
   async deleteItineraryItem(tripId: number, itemId: number): Promise<{ message: string }> {
     return this.request(`/trips/${tripId}/itinerary/${itemId}`, {
       method: 'DELETE',
+    });
+  }
+
+  // --- Cooking & Kitchen Inventory ---
+  // Fridge & Pantry
+  async getFridgeItems(params?: { location?: string; category?: string; status?: string }): Promise<FridgeItem[]> {
+    const query = new URLSearchParams();
+    if (params?.location && params.location !== 'all') query.append('location', params.location);
+    if (params?.category && params.category !== 'all') query.append('category', params.category);
+    if (params?.status && params.status !== 'all') query.append('status', params.status);
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return this.request(`/cooking/fridge${qs}`);
+  }
+
+  async createFridgeItem(data: Partial<FridgeItem>): Promise<FridgeItem> {
+    return this.request('/cooking/fridge', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateFridgeItem(id: number, data: Partial<FridgeItem>): Promise<FridgeItem> {
+    return this.request(`/cooking/fridge/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteFridgeItem(id: number): Promise<{ message: string }> {
+    return this.request(`/cooking/fridge/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Shopping List
+  async getShoppingItems(): Promise<ShoppingItem[]> {
+    return this.request('/cooking/shopping');
+  }
+
+  async createShoppingItem(data: Partial<ShoppingItem>): Promise<ShoppingItem> {
+    return this.request('/cooking/shopping', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateShoppingItem(id: number, data: Partial<ShoppingItem>): Promise<ShoppingItem> {
+    return this.request(`/cooking/shopping/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteShoppingItem(id: number): Promise<{ message: string }> {
+    return this.request(`/cooking/shopping/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async clearPurchasedShoppingItems(): Promise<{ message: string }> {
+    return this.request('/cooking/shopping/purchased/clear', {
+      method: 'DELETE',
+    });
+  }
+
+  async moveShoppingItemToFridge(id: number): Promise<FridgeItem> {
+    return this.request(`/cooking/shopping/${id}/move-to-fridge`, {
+      method: 'POST',
+    });
+  }
+
+  // Weekly Meal Planner
+  async getMealPlans(): Promise<MealPlan[]> {
+    return this.request('/cooking/meals');
+  }
+
+  async createMealPlan(data: Partial<MealPlan>): Promise<MealPlan> {
+    return this.request('/cooking/meals', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateMealPlan(id: number, data: Partial<MealPlan>): Promise<MealPlan> {
+    return this.request(`/cooking/meals/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteMealPlan(id: number): Promise<{ message: string }> {
+    return this.request(`/cooking/meals/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async addMealIngredientsToShoppingList(mealId: number): Promise<ShoppingItem[]> {
+    return this.request(`/cooking/meals/${mealId}/add-to-shopping-list`, {
+      method: 'POST',
     });
   }
 }
