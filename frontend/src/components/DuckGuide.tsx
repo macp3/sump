@@ -24,18 +24,16 @@ const TOUR_STEPS: TourStep[] = [
     text: "In the Calendar tab, you can plan dates, trips, and future adventures together in real time.",
   },
   {
-    title: "Time to play!",
-    text: "That's all! A little secret: I love running around. Try catching me with your cursor if you can! Quack quack!",
+    title: "QUACK!",
+    text: "QUACK QUACK QUACK QUACK QUACK",
   },
 ];
 
 const SPONTANEOUS_MESSAGES = [
-  "Quack! Just wanted to say hi!",
-  "Quack! What are you two doing?",
-  "Quack! I came to check on you!",
-  "Quack! Look at my little feet go!",
-  "Quack! Don't mind me, just waddling by!",
-  "Quack! Sending duck love to both of you!",
+  "QUACK! QUACK QUACK!",
+  "QUACK QUACK QUACK!",
+  "QUACK!",
+  "QUACK QUACK!",
 ];
 
 export const DuckGuide: React.FC = () => {
@@ -143,7 +141,7 @@ export const DuckGuide: React.FC = () => {
         setPos({ x: targetX, y: targetY });
 
         // Little patter bubble while rushing over
-        setQuackBubble("Patter!");
+        setQuackBubble("QUACK QUACK!");
         playQuackSound(1.15);
 
         setTimeout(() => {
@@ -151,7 +149,7 @@ export const DuckGuide: React.FC = () => {
           isMovingRef.current = false;
           setQuackBubble(null);
 
-          // Say something cute upon arriving
+          // Say QUACK upon arriving
           const randomMsg = SPONTANEOUS_MESSAGES[Math.floor(Math.random() * SPONTANEOUS_MESSAGES.length)];
           setApproachMessage(randomMsg);
           playQuackSound(1.2);
@@ -224,11 +222,9 @@ export const DuckGuide: React.FC = () => {
         setPos({ x: targetX, y: targetY });
 
         // Little quick quack while fleeing
-        if (Math.random() > 0.4) {
-          playQuackSound(1.2);
-          setQuackBubble(Math.random() > 0.5 ? "Quack!" : "Patter!");
-          setTimeout(() => setQuackBubble(null), 700);
-        }
+        playQuackSound(1.2);
+        setQuackBubble(Math.random() > 0.5 ? "QUACK!" : "QUACK QUACK!");
+        setTimeout(() => setQuackBubble(null), 700);
 
         setTimeout(() => {
           setIsWaddling(false);
@@ -253,7 +249,7 @@ export const DuckGuide: React.FC = () => {
     } else {
       // Caught the duck!
       setCaughtOpen(true);
-      setQuackBubble("Caught!");
+      setQuackBubble("QUACK!");
       setTimeout(() => setQuackBubble(null), 1000);
     }
   };
@@ -266,7 +262,7 @@ export const DuckGuide: React.FC = () => {
       // Finished tour
       setTourOpen(false);
       localStorage.setItem('sump_duck_tour_done', 'true');
-      setQuackBubble("Run!");
+      setQuackBubble("QUACK!");
       setTimeout(() => setQuackBubble(null), 1200);
     }
   };
@@ -387,7 +383,7 @@ export const DuckGuide: React.FC = () => {
               onClick={handleNextTourStep}
               className="px-3 py-1.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-1.5 transition-all shadow-xs"
             >
-              <span>{currentStep === TOUR_STEPS.length - 1 ? "Start the fun!" : "Next"}</span>
+              <span>{currentStep === TOUR_STEPS.length - 1 ? "QUACK!" : "Next"}</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
@@ -402,7 +398,7 @@ export const DuckGuide: React.FC = () => {
         >
           <div className="flex items-center justify-between pb-1 border-b border-[#e5e0d4]">
             <span className="text-[10px] font-mono-tech text-[#9c7526] uppercase font-semibold">
-              Caught me!
+              QUACK!
             </span>
             <button
               onClick={() => setCaughtOpen(false)}
@@ -412,8 +408,8 @@ export const DuckGuide: React.FC = () => {
             </button>
           </div>
 
-          <p className="text-xs text-stone-700 py-2 font-serif-editorial text-base">
-            Quack! You caught me! I am the fastest little duck in the world.
+          <p className="text-xs text-stone-700 py-2 font-serif-editorial text-base font-semibold tracking-wide">
+            QUACK! QUACK QUACK!
           </p>
 
           <div className="flex items-center gap-2 pt-1 border-t border-[#e5e0d4]">
@@ -429,9 +425,9 @@ export const DuckGuide: React.FC = () => {
                 setCaughtOpen(false);
                 playQuackSound(1.2);
               }}
-              className="flex-1 py-1 px-2 border border-stone-300 hover:bg-stone-100 text-stone-700 text-[10px] font-mono-tech uppercase tracking-wider rounded"
+              className="flex-1 py-1 px-2 border border-stone-300 hover:bg-stone-100 text-stone-700 text-[10px] font-mono-tech uppercase tracking-wider rounded font-semibold"
             >
-              Run along!
+              QUACK!
             </button>
           </div>
         </div>
@@ -440,12 +436,12 @@ export const DuckGuide: React.FC = () => {
       {/* 3. Clamped Spontaneous Approach Speech Bubble */}
       {approachMessage && !tourOpen && !caughtOpen && (
         <div
-          style={getClampedPopupStyle(240, 100)}
-          className="p-3 bg-[#fcfbf7] border-2 border-[#d8b46e] rounded-xl shadow-lg select-none animate-in fade-in slide-in-from-bottom-2 duration-200"
+          style={getClampedPopupStyle(220, 90)}
+          className="p-3 bg-[#fcfbf7] border-2 border-[#d8b46e] rounded-xl shadow-lg select-none animate-in fade-in slide-in-from-bottom-2 duration-200 text-center"
         >
           <div className="flex items-center justify-between pb-1 border-b border-[#e5e0d4]">
             <span className="text-[9px] font-mono-tech text-[#9c7526] uppercase tracking-wider font-semibold">
-              Duck Visitor
+              QUACK
             </span>
             <button
               onClick={() => setApproachMessage(null)}
@@ -454,7 +450,7 @@ export const DuckGuide: React.FC = () => {
               <X className="w-3 h-3" />
             </button>
           </div>
-          <p className="font-serif-editorial text-stone-800 text-sm pt-1.5 leading-snug">
+          <p className="font-serif-editorial text-stone-800 text-base font-semibold pt-1.5 leading-snug">
             {approachMessage}
           </p>
         </div>
@@ -472,9 +468,9 @@ export const DuckGuide: React.FC = () => {
         }}
         className="select-none pointer-events-auto"
       >
-        {/* Floating Quack / Patter indicator badge */}
+        {/* Floating Quack indicator badge */}
         {quackBubble && (
-          <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#181c24] text-[#fcd34d] px-2 py-0.5 rounded text-[11px] font-mono-tech tracking-wider font-semibold shadow-md animate-bounce">
+          <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#181c24] text-[#fcd34d] px-2 py-0.5 rounded text-[11px] font-mono-tech tracking-wider font-bold shadow-md animate-bounce">
             {quackBubble}
           </div>
         )}
@@ -489,7 +485,7 @@ export const DuckGuide: React.FC = () => {
           className={`cursor-pointer transition-transform duration-100 ${
             isWaddling ? 'duck-body-bob-anim' : 'hover:scale-105 active:scale-95'
           }`}
-          title="Click the duck for a Quack!"
+          title="QUACK!"
         >
           <svg
             width="64"
