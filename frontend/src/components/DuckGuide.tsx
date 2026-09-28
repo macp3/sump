@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, X, ArrowRight, RotateCcw } from 'lucide-react';
+import duckPhoto from '../assets/photorealistic_duck.png';
 
 interface TourStep {
   title: string;
@@ -281,13 +282,13 @@ export const DuckGuide: React.FC = () => {
     const w = Math.min(width, window.innerWidth - screenPadding * 2);
 
     // Center horizontally on duck, clamped to viewport
-    const left = Math.max(screenPadding, Math.min(pos.x + 32 - w / 2, window.innerWidth - w - screenPadding));
+    const left = Math.max(screenPadding, Math.min(pos.x + 40 - w / 2, window.innerWidth - w - screenPadding));
 
     // Place above duck if there is room; otherwise place below duck
     const placeAbove = pos.y > height + 24;
     const top = placeAbove
       ? Math.max(screenPadding, pos.y - height - 12)
-      : Math.min(window.innerHeight - height - screenPadding, pos.y + 70);
+      : Math.min(window.innerHeight - height - screenPadding, pos.y + 85);
 
     return {
       position: 'fixed' as const,
@@ -300,40 +301,18 @@ export const DuckGuide: React.FC = () => {
 
   return (
     <>
-      {/* Dynamic Keyframes for waddling feet & wing flapping */}
+      {/* Dynamic Keyframes for realistic duck waddling gait */}
       <style>{`
-        @keyframes duck-waddle-left {
+        @keyframes duck-waddle-photo {
           0% { transform: rotate(0deg) translateY(0); }
-          50% { transform: rotate(-25deg) translateY(-4px); }
+          25% { transform: rotate(-7deg) translateY(-5px); }
+          50% { transform: rotate(0deg) translateY(0); }
+          75% { transform: rotate(7deg) translateY(-5px); }
           100% { transform: rotate(0deg) translateY(0); }
         }
-        @keyframes duck-waddle-right {
-          0% { transform: rotate(0deg) translateY(0); }
-          50% { transform: rotate(25deg) translateY(-4px); }
-          100% { transform: rotate(0deg) translateY(0); }
-        }
-        @keyframes duck-body-bob {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-3px); }
-        }
-        @keyframes duck-wing-flap {
-          0%, 100% { transform: rotate(0deg); }
-          50% { transform: rotate(-28deg); }
-        }
-        .duck-foot-left-anim {
-          animation: duck-waddle-left 0.18s infinite ease-in-out;
-          transform-origin: 22px 50px;
-        }
-        .duck-foot-right-anim {
-          animation: duck-waddle-right 0.18s infinite ease-in-out;
-          transform-origin: 38px 50px;
-        }
-        .duck-body-bob-anim {
-          animation: duck-body-bob 0.18s infinite ease-in-out;
-        }
-        .duck-wing-flap-anim {
-          animation: duck-wing-flap 0.15s infinite ease-in-out;
-          transform-origin: 24px 30px;
+        .duck-waddle-photo-anim {
+          animation: duck-waddle-photo 0.22s infinite ease-in-out;
+          transform-origin: center bottom;
         }
       `}</style>
 
@@ -456,7 +435,7 @@ export const DuckGuide: React.FC = () => {
         </div>
       )}
 
-      {/* Main Free-Roaming Duck Character */}
+      {/* Main Free-Roaming Photorealistic Duck Character */}
       <div
         ref={duckRef}
         style={{
@@ -475,96 +454,31 @@ export const DuckGuide: React.FC = () => {
           </div>
         )}
 
-        {/* Animated Duck Graphic */}
+        {/* Photorealistic Duck Character with contact shadow and waddling gait */}
         <div
           onClick={handleDuckClick}
           style={{
             transform: facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
-            transformOrigin: 'center center',
+            transformOrigin: 'center bottom',
           }}
-          className={`cursor-pointer transition-transform duration-100 ${
-            isWaddling ? 'duck-body-bob-anim' : 'hover:scale-105 active:scale-95'
+          className={`cursor-pointer relative transition-transform duration-100 ${
+            isWaddling ? 'duck-waddle-photo-anim' : 'hover:scale-105 active:scale-95'
           }`}
           title="QUACK!"
         >
-          <svg
-            width="64"
-            height="64"
-            viewBox="0 0 64 64"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="filter drop-shadow-md"
-          >
-            {/* Animated Pattering Feet */}
-            <g className={isWaddling ? 'duck-foot-left-anim' : ''}>
-              {/* Left Foot */}
-              <ellipse cx="22" cy="54" rx="6" ry="2.5" fill="#FF781F" stroke="#D45A00" strokeWidth="1" />
-              <line x1="22" y1="46" x2="22" y2="53" stroke="#FF781F" strokeWidth="2.5" strokeLinecap="round" />
-            </g>
+          {/* Subtle soft contact shadow under duck feet */}
+          <div
+            className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-14 h-2.5 bg-stone-900/15 rounded-full blur-[2px] transition-all duration-150 ${
+              isWaddling ? 'scale-x-85 opacity-30' : 'scale-x-100 opacity-60'
+            }`}
+          />
 
-            <g className={isWaddling ? 'duck-foot-right-anim' : ''}>
-              {/* Right Foot */}
-              <ellipse cx="36" cy="54" rx="6" ry="2.5" fill="#E65C00" stroke="#B84500" strokeWidth="1" />
-              <line x1="36" y1="46" x2="36" y2="53" stroke="#E65C00" strokeWidth="2.5" strokeLinecap="round" />
-            </g>
-
-            {/* Duck Tail Feather */}
-            <path
-              d="M12 36 C 8 32, 6 26, 10 22 C 14 26, 16 32, 18 36 Z"
-              fill="#FDB813"
-              stroke="#D49A00"
-              strokeWidth="1.5"
-            />
-
-            {/* Duck Round Body */}
-            <ellipse
-              cx="28"
-              cy="36"
-              rx="18"
-              ry="13"
-              fill="#FEC827"
-              stroke="#D49A00"
-              strokeWidth="1.5"
-            />
-
-            {/* Flapping Wing */}
-            <g className={isWaddling ? 'duck-wing-flap-anim' : ''}>
-              <path
-                d="M20 34 C 20 28, 28 26, 33 32 C 30 38, 22 39, 20 34 Z"
-                fill="#FDB813"
-                stroke="#D49A00"
-                strokeWidth="1.5"
-                strokeLinejoin="round"
-              />
-            </g>
-
-            {/* Duck Head */}
-            <circle
-              cx="44"
-              cy="23"
-              r="11"
-              fill="#FEC827"
-              stroke="#D49A00"
-              strokeWidth="1.5"
-            />
-
-            {/* Sweet Big Eye with reflection */}
-            <ellipse cx="46.5" cy="20" rx="2.5" ry="3" fill="#181C24" />
-            <circle cx="47.2" cy="19" r="1.1" fill="#FFFFFF" />
-            <circle cx="45.8" cy="21.5" r="0.5" fill="#FFFFFF" />
-
-            {/* Rosy Cheek */}
-            <ellipse cx="42" cy="26" rx="2.8" ry="1.8" fill="#FCA5A5" opacity="0.75" />
-
-            {/* Duck Beak */}
-            <path
-              d="M52 23 C 58 21, 62 23, 62 25.5 C 57 28, 52 27, 52 27 Z"
-              fill="#FF781F"
-              stroke="#D45A00"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <img
+            src={duckPhoto}
+            alt="Photorealistic Duck"
+            className="w-20 h-20 sm:w-24 sm:h-24 object-contain filter drop-shadow-sm pointer-events-none select-none"
+            draggable={false}
+          />
         </div>
       </div>
     </>
