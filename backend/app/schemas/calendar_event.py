@@ -19,7 +19,8 @@ class CalendarEventResponse(BaseModel):
     is_all_day: bool
     creator_id: int
     created_at: datetime
-    creator: UserResponse
+    creator: Optional[UserResponse] = None
+    trip_id: Optional[int] = None
 
     class Config:
         from_attributes = True

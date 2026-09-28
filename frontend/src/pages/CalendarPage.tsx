@@ -7,7 +7,9 @@ import {
   Plus, 
   Clock, 
   Trash2,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  ArrowRight,
+  MapPin
 } from 'lucide-react';
 import { 
   format, 
@@ -29,6 +31,7 @@ import selinaAvatar from '../assets/Selina.jpg';
 
 interface CalendarPageProps {
   onOpenCreateEventForDay: (dateStr?: string) => void;
+  onNavigateToTrips?: (tripId?: number) => void;
   refreshKey?: number;
 }
 
@@ -49,6 +52,7 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string
 
 export const CalendarPage: React.FC<CalendarPageProps> = ({
   onOpenCreateEventForDay,
+  onNavigateToTrips,
   refreshKey,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -296,23 +300,41 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
                           <span className={`w-3 h-3 rounded-full ${color.dot} ml-1 shadow-xs`} title="Category color" />
                         </div>
 
-                        <button
-                          onClick={() => setEventToDelete(e)}
-                          className="text-stone-400 hover:text-rose-600 transition-colors p-1"
-                          title="Delete event"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {e.trip_id ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono-tech uppercase font-semibold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded border border-emerald-300">
+                              Synced Trip
+                            </span>
+                            {onNavigateToTrips && (
+                              <button
+                                onClick={() => onNavigateToTrips(e.trip_id)}
+                                className="text-[10px] font-mono-tech uppercase font-semibold text-[#9c7526] hover:text-[#735213] flex items-center gap-1 transition-colors cursor-pointer"
+                                title="Open in Travel Planner"
+                              >
+                                <span>Trips</span>
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setEventToDelete(e)}
+                            className="text-stone-400 hover:text-rose-600 transition-colors p-1"
+                            title="Delete event"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
 
                       <h4 className="font-serif-editorial text-xl text-[#181c24] mb-1 font-medium">{e.title}</h4>
                       {e.description && (
-                        <p className="text-xs text-stone-700 font-light mb-2">{e.description}</p>
+                        <p className="text-xs text-stone-700 font-light mb-2 whitespace-pre-line leading-relaxed">{e.description}</p>
                       )}
 
                       <div className="flex items-center gap-1.5 text-xs text-stone-600 font-mono-tech mt-2 pt-2 border-t border-stone-200/60">
                         <Clock className="w-3.5 h-3.5 text-stone-500" />
-                        <span>{format(parseISO(e.event_date), 'h:mm a')}</span>
+                        <span>{e.is_all_day ? 'All-Day Trip' : format(parseISO(e.event_date), 'h:mm a')}</span>
                       </div>
                     </div>
                   );

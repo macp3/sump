@@ -60,6 +60,7 @@ export interface CalendarEvent {
   creator_id: number;
   created_at: string;
   creator: User;
+  trip_id?: number;
 }
 
 export interface AppConfig {
@@ -79,7 +80,7 @@ export interface MissYouStats {
   partner_name: string;
 }
 
-export type TripStatus = 'idea' | 'planning' | 'booked' | 'completed';
+export type TripStatus = 'idea' | 'planning' | 'planned' | 'booked' | 'completed';
 export type TransportType = 'flight' | 'train' | 'car' | 'bus' | 'ferry' | 'other';
 export type LodgingType = 'hotel' | 'airbnb' | 'apartment' | 'resort' | 'hostel' | 'other';
 

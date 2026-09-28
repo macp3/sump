@@ -100,7 +100,8 @@ export const TripsPage: React.FC = () => {
       case 'idea':
         return { label: 'Idea', bg: 'bg-stone-100 text-stone-700 border-stone-300' };
       case 'planning':
-        return { label: 'Planning', bg: 'bg-amber-50 text-amber-800 border-amber-300' };
+      case 'planned':
+        return { label: 'Planned', bg: 'bg-amber-50 text-amber-800 border-amber-300' };
       case 'booked':
         return { label: 'Booked', bg: 'bg-emerald-50 text-emerald-800 border-emerald-300' };
       case 'completed':
@@ -403,6 +404,21 @@ export const TripsPage: React.FC = () => {
                   {getStatusBadge(currentTrip.status).label}
                 </span>
 
+                {currentTrip.status !== 'idea' && currentTrip.start_date ? (
+                  <span className="px-2 py-0.5 text-[10px] font-mono-tech uppercase tracking-wider rounded border border-emerald-300 bg-emerald-50 text-emerald-800 font-semibold flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-emerald-600" />
+                    <span>Synced to Calendar</span>
+                  </span>
+                ) : currentTrip.status === 'idea' ? (
+                  <span className="px-2 py-0.5 text-[10px] font-mono-tech uppercase tracking-wider rounded border border-stone-200 bg-stone-100 text-stone-500 font-medium">
+                    Draft Idea (Not in Calendar)
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 text-[10px] font-mono-tech uppercase tracking-wider rounded border border-amber-200 bg-amber-50 text-amber-700 font-medium">
+                    Set Dates to Sync Calendar
+                  </span>
+                )}
+
                 {getDaysCountdown(currentTrip.start_date) && (
                   <span className="px-2 py-0.5 text-[10px] font-mono-tech uppercase tracking-wider rounded bg-stone-100 text-stone-600 font-medium">
                     {getDaysCountdown(currentTrip.start_date)}
@@ -427,9 +443,9 @@ export const TripsPage: React.FC = () => {
                 onChange={(e) => handleUpdateStatus(currentTrip.id, e.target.value as TripStatus)}
                 className="text-xs font-mono-tech bg-white border border-[#e5e0d4] rounded px-3 py-2 text-stone-700 focus:outline-none focus:border-[#9c7526]"
               >
-                <option value="idea">Status: Idea</option>
-                <option value="planning">Status: Planning</option>
-                <option value="booked">Status: Booked</option>
+                <option value="idea">Status: Idea (Brainstorming)</option>
+                <option value="planning">Status: Planned (Planning)</option>
+                <option value="booked">Status: Booked (Confirmed)</option>
                 <option value="completed">Status: Completed</option>
               </select>
 
@@ -568,9 +584,16 @@ export const TripsPage: React.FC = () => {
                           <MapPin className="w-3.5 h-3.5" />
                           {trip.destination}
                         </span>
-                        <span className={`px-2 py-0.5 text-[9px] font-mono-tech uppercase tracking-wider rounded border font-semibold ${statusInfo.bg}`}>
-                          {statusInfo.label}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {trip.status !== 'idea' && trip.start_date && (
+                            <span className="px-1.5 py-0.2 text-[8px] font-mono-tech uppercase rounded border border-emerald-300 bg-emerald-50 text-emerald-800 font-semibold" title="Synced to Calendar">
+                              Synced
+                            </span>
+                          )}
+                          <span className={`px-2 py-0.5 text-[9px] font-mono-tech uppercase tracking-wider rounded border font-semibold ${statusInfo.bg}`}>
+                            {statusInfo.label}
+                          </span>
+                        </div>
                       </div>
 
                       <h3 className="font-serif-editorial text-2xl text-[#181c24] group-hover:text-[#9c7526] transition-colors leading-snug">
@@ -1352,12 +1375,17 @@ export const TripsPage: React.FC = () => {
                       defaultValue={editingTrip?.status || 'idea'}
                       className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
                     >
-                      <option value="idea">Idea (Brainstorming)</option>
-                      <option value="planning">Planning (Actively researching)</option>
-                      <option value="booked">Booked (Ready to go!)</option>
-                      <option value="completed">Completed (Past adventure)</option>
+                      <option value="idea">Idea (Brainstorming - not in calendar)</option>
+                      <option value="planning">Planned (Synchronized to calendar)</option>
+                      <option value="booked">Booked (Confirmed - in calendar)</option>
+                      <option value="completed">Completed (Past trip - in calendar)</option>
                     </select>
                   </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200/80 text-[11px] font-mono-tech text-emerald-900 flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span>Trips with status <strong>Planned</strong> or higher and set dates automatically synchronize with your shared calendar.</span>
                 </div>
 
                 <div>

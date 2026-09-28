@@ -73,6 +73,7 @@ const MainLayout: React.FC = () => {
         {activeTab === 'calendar' && (
           <CalendarPage
             onOpenCreateEventForDay={handleOpenEventForDay}
+            onNavigateToTrips={() => setActiveTab('trips')}
             refreshKey={calendarRefreshKey}
           />
         )}
