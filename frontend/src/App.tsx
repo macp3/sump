@@ -6,6 +6,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { CreateCalendarEventModal } from './components/CreateCalendarEventModal';
 import { PasswordChangeModal } from './components/PasswordChangeModal';
+import { DuckGuide } from './components/DuckGuide';
 import { api } from './api/client';
 
 const MainLayout: React.FC = () => {
@@ -74,6 +75,9 @@ const MainLayout: React.FC = () => {
           />
         )}
       </main>
+
+      {/* Persistent Atelier Companion Duck Guide */}
+      <DuckGuide />
 
       {/* Modals */}
       <CreateCalendarEventModal
