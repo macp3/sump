@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, X, ArrowRight, RotateCcw } from 'lucide-react';
-import adultDuckSide from '../assets/adult_duck_side.png';
-import adultDuckFront from '../assets/adult_duck_front.png';
-import adultDuckBack from '../assets/adult_duck_back.png';
+import duckSide1 from '../assets/duck_side_1.png';
+import duckSide2 from '../assets/duck_side_2.png';
+import duckFront1 from '../assets/duck_front_1.png';
+import duckFront2 from '../assets/duck_front_2.png';
+import duckBack1 from '../assets/duck_back_1.png';
+import duckBack2 from '../assets/duck_back_2.png';
 
 interface TourStep {
   title: string;
@@ -100,15 +103,15 @@ export const DuckGuide: React.FC = () => {
     }
   };
 
-  // Walk cycle frame alternator while moving
+  // True multi-frame walk cycle alternator (switching feet frames while walking)
   useEffect(() => {
     if (!isWaddling) {
       setWalkStep(0);
       return;
     }
     const interval = setInterval(() => {
-      setWalkStep((prev) => (prev + 1) % 2);
-    }, 115);
+      setWalkStep((prev) => (prev === 0 ? 1 : 0));
+    }, 120);
     return () => clearInterval(interval);
   }, [isWaddling]);
 
@@ -178,6 +181,8 @@ export const DuckGuide: React.FC = () => {
           setIsWaddling(false);
           isMovingRef.current = false;
           setQuackBubble(null);
+          // Return to normal default side position when stopped
+          setDirection('side');
 
           const randomMsg = SPONTANEOUS_MESSAGES[Math.floor(Math.random() * SPONTANEOUS_MESSAGES.length)];
           setApproachMessage(randomMsg);
@@ -248,6 +253,8 @@ export const DuckGuide: React.FC = () => {
         setTimeout(() => {
           setIsWaddling(false);
           isMovingRef.current = false;
+          // Return to normal default side position when movement completes
+          setDirection('side');
         }, 450);
       }
     };
@@ -261,7 +268,10 @@ export const DuckGuide: React.FC = () => {
     playQuackSound(0.95);
     setIsWaddling(true);
     setApproachMessage(null);
-    setTimeout(() => setIsWaddling(false), 500);
+    setTimeout(() => {
+      setIsWaddling(false);
+      setDirection('side');
+    }, 500);
 
     if (tourOpen) {
       handleNextTourStep();
@@ -313,28 +323,37 @@ export const DuckGuide: React.FC = () => {
     };
   };
 
+  // Current duck image according to direction and walk cycle step
+  const getCurrentDuckImage = () => {
+    if (!isWaddling) {
+      // Resting / normal idle pose: peaceful adult duck side profile
+      return duckSide1;
+    }
+
+    if (direction === 'up') {
+      // Walking UP: back view with full head, alternating stepping feet
+      return walkStep === 0 ? duckBack1 : duckBack2;
+    }
+
+    if (direction === 'down') {
+      // Walking DOWN: front view facing viewer, alternating stepping feet
+      return walkStep === 0 ? duckFront1 : duckFront2;
+    }
+
+    // Walking SIDEWAYS: alternating side stride step frames
+    return walkStep === 0 ? duckSide1 : duckSide2;
+  };
+
   return (
     <>
-      {/* Keyframe animations for duck walk cycle */}
+      {/* Subtle bounce keyframes while walking */}
       <style>{`
-        @keyframes duck-waddle-side {
-          0% { transform: translateY(0px) rotate(0deg); }
-          25% { transform: translateY(-5px) rotate(-6deg); }
-          50% { transform: translateY(0px) rotate(0deg); }
-          75% { transform: translateY(-5px) rotate(6deg); }
-          100% { transform: translateY(0px) rotate(0deg); }
-        }
-        @keyframes duck-waddle-vert {
+        @keyframes duck-walk-hop {
           0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
+          50% { transform: translateY(-4px); }
         }
-        .duck-waddle-side-anim {
-          animation: duck-waddle-side 0.22s infinite ease-in-out;
-          transform-origin: center bottom;
-        }
-        .duck-waddle-vert-anim {
-          animation: duck-waddle-vert 0.18s infinite ease-in-out;
-          transform-origin: center bottom;
+        .duck-walk-hop-anim {
+          animation: duck-walk-hop 0.16s infinite ease-in-out;
         }
       `}</style>
 
@@ -448,7 +467,7 @@ export const DuckGuide: React.FC = () => {
               onClick={() => setApproachMessage(null)}
               className="text-stone-400 hover:text-stone-700 p-0.5"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
           <p className="font-serif-editorial text-stone-800 text-base font-semibold pt-1.5 leading-snug">
@@ -476,7 +495,7 @@ export const DuckGuide: React.FC = () => {
           </div>
         )}
 
-        {/* Directional Photorealistic Adult Duck with Dynamic Step Walk Cycle */}
+        {/* Directional Photorealistic Adult Duck with True Multi-Frame Walk Cycle */}
         <div
           onClick={handleDuckClick}
           className="cursor-pointer relative hover:scale-105 active:scale-95 transition-transform duration-100"
@@ -489,53 +508,19 @@ export const DuckGuide: React.FC = () => {
             }`}
           />
 
-          {/* Direction 1: Walking UP (Back view seen from behind, walking away) */}
-          {direction === 'up' && (
-            <img
-              src={adultDuckBack}
-              alt="Adult Duck Walking Up"
-              style={{
-                transform: walkStep === 1 ? 'scaleX(-1)' : 'scaleX(1)',
-                transformOrigin: 'center bottom',
-              }}
-              className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
-                isWaddling ? 'duck-waddle-vert-anim' : ''
-              }`}
-              draggable={false}
-            />
-          )}
-
-          {/* Direction 2: Walking DOWN (Front view facing the viewer, walking forward) */}
-          {direction === 'down' && (
-            <img
-              src={adultDuckFront}
-              alt="Adult Duck Walking Down"
-              style={{
-                transform: walkStep === 1 ? 'scaleX(-1)' : 'scaleX(1)',
-                transformOrigin: 'center bottom',
-              }}
-              className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
-                isWaddling ? 'duck-waddle-vert-anim' : ''
-              }`}
-              draggable={false}
-            />
-          )}
-
-          {/* Direction 3: Walking SIDEWAYS (Side view facing left or right) */}
-          {direction === 'side' && (
-            <img
-              src={adultDuckSide}
-              alt="Adult Duck Walking Side"
-              style={{
-                transform: facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
-                transformOrigin: 'center bottom',
-              }}
-              className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
-                isWaddling ? 'duck-waddle-side-anim' : ''
-              }`}
-              draggable={false}
-            />
-          )}
+          {/* Stepping Duck Sprite Frame */}
+          <img
+            src={getCurrentDuckImage()}
+            alt="Adult Duck"
+            style={{
+              transform: direction === 'side' && facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
+              transformOrigin: 'center bottom',
+            }}
+            className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
+              isWaddling ? 'duck-walk-hop-anim' : ''
+            }`}
+            draggable={false}
+          />
         </div>
       </div>
     </>
