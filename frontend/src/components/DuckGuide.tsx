@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, X, ArrowRight, RotateCcw } from 'lucide-react';
-import duckPhoto from '../assets/photorealistic_duck.png';
+import adultDuckSide from '../assets/adult_duck_side.png';
+import adultDuckFront from '../assets/adult_duck_front.png';
+import adultDuckBack from '../assets/adult_duck_back.png';
 
 interface TourStep {
   title: string;
@@ -10,7 +12,7 @@ interface TourStep {
 const TOUR_STEPS: TourStep[] = [
   {
     title: "Quack quack! Hello there!",
-    text: "I am your little duck! I'm here to show you around your very special place.",
+    text: "I am your duck guide! I'm here to show you around your very special place.",
   },
   {
     title: "Our clock",
@@ -37,16 +39,20 @@ const SPONTANEOUS_MESSAGES = [
   "QUACK QUACK!",
 ];
 
+type DuckDirection = 'side' | 'up' | 'down';
+
 export const DuckGuide: React.FC = () => {
   const [tourOpen, setTourOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [caughtOpen, setCaughtOpen] = useState(false);
   const [approachMessage, setApproachMessage] = useState<string | null>(null);
 
-  // Position on screen
+  // Position and directional motion state
   const [pos, setPos] = useState({ x: 120, y: 120 });
+  const [direction, setDirection] = useState<DuckDirection>('side');
   const [facingLeft, setFacingLeft] = useState(false);
   const [isWaddling, setIsWaddling] = useState(false);
+  const [walkStep, setWalkStep] = useState(0);
   const [quackBubble, setQuackBubble] = useState<string | null>(null);
 
   const duckRef = useRef<HTMLDivElement>(null);
@@ -54,7 +60,7 @@ export const DuckGuide: React.FC = () => {
   const lastFleeTimeRef = useRef(0);
   const lastMousePosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
-  // Synthesized realistic and sweet duck "Quack" sound via Web Audio API
+  // Synthesized realistic duck "Quack" sound via Web Audio API
   const playQuackSound = (pitchMod = 1) => {
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -68,46 +74,55 @@ export const DuckGuide: React.FC = () => {
       osc.type = 'sawtooth';
       const now = ctx.currentTime;
 
-      // Pitch sweep
-      const startFreq = 350 * pitchMod;
-      const endFreq = 220 * pitchMod;
+      // Realistic adult duck fundamental frequency
+      const startFreq = 290 * pitchMod;
+      const endFreq = 185 * pitchMod;
       osc.frequency.setValueAtTime(startFreq, now);
-      osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.16);
+      osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.18);
 
-      // Formant nasal resonance filter
+      // Formant filter for adult duck quack resonance
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1050 * pitchMod, now);
-      filter.Q.setValueAtTime(3.8, now);
+      filter.frequency.setValueAtTime(920 * pitchMod, now);
+      filter.Q.setValueAtTime(3.6, now);
 
-      // Volume envelope
       gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.35, now + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      gain.gain.linearRampToValueAtTime(0.38, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
 
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.2);
+      osc.stop(now + 0.22);
     } catch {
       // Gracefully handled if browser audio policy blocks
     }
   };
 
+  // Walk cycle frame alternator while moving
+  useEffect(() => {
+    if (!isWaddling) {
+      setWalkStep(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setWalkStep((prev) => (prev + 1) % 2);
+    }, 115);
+    return () => clearInterval(interval);
+  }, [isWaddling]);
+
   // Initial placement and first-time tour check
   useEffect(() => {
-    // Set initial position in the bottom right corner
-    const initX = Math.max(window.innerWidth - 140, 60);
-    const initY = Math.max(window.innerHeight - 140, 60);
+    const initX = Math.max(window.innerWidth - 150, 60);
+    const initY = Math.max(window.innerHeight - 150, 60);
     setPos({ x: initX, y: initY });
 
-    // Check if tour was already shown
     const tourDone = localStorage.getItem('sump_duck_tour_done');
     if (!tourDone) {
       setTimeout(() => {
         setTourOpen(true);
-        playQuackSound(1.1);
+        playQuackSound(1.0);
       }, 700);
     }
   }, []);
@@ -121,55 +136,66 @@ export const DuckGuide: React.FC = () => {
     return () => window.removeEventListener('mousemove', trackMouse);
   }, []);
 
+  // Helper to update direction based on motion vector
+  const updateDirection = (currentX: number, currentY: number, targetX: number, targetY: number) => {
+    const dx = targetX - currentX;
+    const dy = targetY - currentY;
+
+    // Check if vertical motion is dominant
+    if (Math.abs(dy) > Math.abs(dx) * 0.85) {
+      if (dy < 0) {
+        setDirection('up'); // Moving UP: back turned to viewer
+      } else {
+        setDirection('down'); // Moving DOWN: facing front to viewer
+      }
+    } else {
+      setDirection('side'); // Moving horizontally: side profile
+      setFacingLeft(dx < 0);
+    }
+  };
+
   // Spontaneous behavior: Duck runs up to the user on her own occasionally
   useEffect(() => {
     const runInterval = setInterval(() => {
-      // Only approach if tour and popups are closed and duck isn't currently moving
       if (tourOpen || caughtOpen || isMovingRef.current || approachMessage) return;
 
-      // 60% chance to run up to the user when interval fires
-      if (Math.random() > 0.4) {
+      if (Math.random() > 0.35) {
         const mouse = lastMousePosRef.current;
         isMovingRef.current = true;
         setIsWaddling(true);
 
-        // Calculate offset near cursor (around 85px to the side)
-        const sideOffset = Math.random() > 0.5 ? 85 : -85;
-        const targetX = Math.max(30, Math.min(mouse.x + sideOffset, window.innerWidth - 90));
-        const targetY = Math.max(30, Math.min(mouse.y + (Math.random() * 40 - 20), window.innerHeight - 90));
+        const sideOffset = Math.random() > 0.5 ? 90 : -90;
+        const targetX = Math.max(30, Math.min(mouse.x + sideOffset, window.innerWidth - 100));
+        const targetY = Math.max(30, Math.min(mouse.y + (Math.random() * 50 - 25), window.innerHeight - 100));
 
-        setFacingLeft(targetX < pos.x);
+        updateDirection(pos.x, pos.y, targetX, targetY);
         setPos({ x: targetX, y: targetY });
 
-        // Little patter bubble while rushing over
         setQuackBubble("QUACK QUACK!");
-        playQuackSound(1.15);
+        playQuackSound(1.1);
 
         setTimeout(() => {
           setIsWaddling(false);
           isMovingRef.current = false;
           setQuackBubble(null);
 
-          // Say QUACK upon arriving
           const randomMsg = SPONTANEOUS_MESSAGES[Math.floor(Math.random() * SPONTANEOUS_MESSAGES.length)];
           setApproachMessage(randomMsg);
-          playQuackSound(1.2);
+          playQuackSound(1.15);
 
-          // Hide after 3.5 seconds
           setTimeout(() => {
             setApproachMessage(null);
           }, 3500);
         }, 450);
       }
-    }, 16000 + Math.random() * 8000); // Every 16-24 seconds
+    }, 15000 + Math.random() * 8000);
 
     return () => clearInterval(runInterval);
   }, [pos, tourOpen, caughtOpen, approachMessage]);
 
-  // Fleeing mouse cursor logic (runs when tour is not actively open)
+  // Fleeing mouse cursor logic
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Do not flee while reading the tour or caught bubble
       if (tourOpen || caughtOpen || isMovingRef.current) return;
 
       const now = Date.now();
@@ -186,9 +212,7 @@ export const DuckGuide: React.FC = () => {
       const dy = e.clientY - duckCenterY;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // Proximity threshold: 110px
-      if (distance < 110) {
-        // If an approach message was displayed, close it as duck flees
+      if (distance < 115) {
         if (approachMessage) {
           setApproachMessage(null);
         }
@@ -197,33 +221,27 @@ export const DuckGuide: React.FC = () => {
         isMovingRef.current = true;
         setIsWaddling(true);
 
-        // Vector away from cursor
         const angle = Math.atan2(dy, dx);
-        const jumpDistance = 140 + Math.random() * 120;
-
-        // Flee in opposite direction with slight random jitter
-        const jitter = (Math.random() - 0.5) * 0.8;
+        const jumpDistance = 150 + Math.random() * 130;
+        const jitter = (Math.random() - 0.5) * 0.7;
         const fleeAngle = angle + Math.PI + jitter;
 
         let targetX = pos.x + Math.cos(fleeAngle) * jumpDistance;
         let targetY = pos.y + Math.sin(fleeAngle) * jumpDistance;
 
-        // Keep inside screen boundaries
         const padding = 50;
-        const maxX = window.innerWidth - 100;
-        const maxY = window.innerHeight - 100;
+        const maxX = window.innerWidth - 110;
+        const maxY = window.innerHeight - 110;
 
-        if (targetX < padding) targetX = padding + Math.random() * 100;
-        if (targetX > maxX) targetX = maxX - Math.random() * 100;
-        if (targetY < padding) targetY = padding + Math.random() * 100;
-        if (targetY > maxY) targetY = maxY - Math.random() * 100;
+        if (targetX < padding) targetX = padding + Math.random() * 90;
+        if (targetX > maxX) targetX = maxX - Math.random() * 90;
+        if (targetY < padding) targetY = padding + Math.random() * 90;
+        if (targetY > maxY) targetY = maxY - Math.random() * 90;
 
-        // Flip duck facing direction based on movement
-        setFacingLeft(targetX < pos.x);
+        updateDirection(pos.x, pos.y, targetX, targetY);
         setPos({ x: targetX, y: targetY });
 
-        // Little quick quack while fleeing
-        playQuackSound(1.2);
+        playQuackSound(1.1);
         setQuackBubble(Math.random() > 0.5 ? "QUACK!" : "QUACK QUACK!");
         setTimeout(() => setQuackBubble(null), 700);
 
@@ -248,7 +266,6 @@ export const DuckGuide: React.FC = () => {
     if (tourOpen) {
       handleNextTourStep();
     } else {
-      // Caught the duck!
       setCaughtOpen(true);
       setQuackBubble("QUACK!");
       setTimeout(() => setQuackBubble(null), 1000);
@@ -260,7 +277,6 @@ export const DuckGuide: React.FC = () => {
     if (currentStep < TOUR_STEPS.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // Finished tour
       setTourOpen(false);
       localStorage.setItem('sump_duck_tour_done', 'true');
       setQuackBubble("QUACK!");
@@ -273,7 +289,7 @@ export const DuckGuide: React.FC = () => {
     setApproachMessage(null);
     setCurrentStep(0);
     setTourOpen(true);
-    playQuackSound(1.1);
+    playQuackSound(1.05);
   };
 
   // Helper to calculate clamped fixed coordinates for popups so they NEVER overflow the viewport
@@ -281,14 +297,12 @@ export const DuckGuide: React.FC = () => {
     const screenPadding = 16;
     const w = Math.min(width, window.innerWidth - screenPadding * 2);
 
-    // Center horizontally on duck, clamped to viewport
-    const left = Math.max(screenPadding, Math.min(pos.x + 40 - w / 2, window.innerWidth - w - screenPadding));
+    const left = Math.max(screenPadding, Math.min(pos.x + 45 - w / 2, window.innerWidth - w - screenPadding));
 
-    // Place above duck if there is room; otherwise place below duck
     const placeAbove = pos.y > height + 24;
     const top = placeAbove
       ? Math.max(screenPadding, pos.y - height - 12)
-      : Math.min(window.innerHeight - height - screenPadding, pos.y + 85);
+      : Math.min(window.innerHeight - height - screenPadding, pos.y + 95);
 
     return {
       position: 'fixed' as const,
@@ -301,22 +315,30 @@ export const DuckGuide: React.FC = () => {
 
   return (
     <>
-      {/* Dynamic Keyframes for realistic duck waddling gait */}
+      {/* Keyframe animations for duck walk cycle */}
       <style>{`
-        @keyframes duck-waddle-photo {
-          0% { transform: rotate(0deg) translateY(0); }
-          25% { transform: rotate(-7deg) translateY(-5px); }
-          50% { transform: rotate(0deg) translateY(0); }
-          75% { transform: rotate(7deg) translateY(-5px); }
-          100% { transform: rotate(0deg) translateY(0); }
+        @keyframes duck-waddle-side {
+          0% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-5px) rotate(-6deg); }
+          50% { transform: translateY(0px) rotate(0deg); }
+          75% { transform: translateY(-5px) rotate(6deg); }
+          100% { transform: translateY(0px) rotate(0deg); }
         }
-        .duck-waddle-photo-anim {
-          animation: duck-waddle-photo 0.22s infinite ease-in-out;
+        @keyframes duck-waddle-vert {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
+        }
+        .duck-waddle-side-anim {
+          animation: duck-waddle-side 0.22s infinite ease-in-out;
+          transform-origin: center bottom;
+        }
+        .duck-waddle-vert-anim {
+          animation: duck-waddle-vert 0.18s infinite ease-in-out;
           transform-origin: center bottom;
         }
       `}</style>
 
-      {/* 1. Clamped Guided Tour Speech Bubble (Always 100% on screen) */}
+      {/* 1. Clamped Guided Tour Speech Bubble */}
       {tourOpen && (
         <div
           style={getClampedPopupStyle(320, 210)}
@@ -369,7 +391,7 @@ export const DuckGuide: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Clamped Caught Popup Bubble (Always 100% on screen) */}
+      {/* 2. Clamped Caught Popup Bubble */}
       {caughtOpen && !tourOpen && (
         <div
           style={getClampedPopupStyle(270, 150)}
@@ -402,7 +424,7 @@ export const DuckGuide: React.FC = () => {
             <button
               onClick={() => {
                 setCaughtOpen(false);
-                playQuackSound(1.2);
+                playQuackSound(1.15);
               }}
               className="flex-1 py-1 px-2 border border-stone-300 hover:bg-stone-100 text-stone-700 text-[10px] font-mono-tech uppercase tracking-wider rounded font-semibold"
             >
@@ -435,7 +457,7 @@ export const DuckGuide: React.FC = () => {
         </div>
       )}
 
-      {/* Main Free-Roaming Photorealistic Duck Character */}
+      {/* Main Free-Roaming Adult Duck Character */}
       <div
         ref={duckRef}
         style={{
@@ -454,31 +476,66 @@ export const DuckGuide: React.FC = () => {
           </div>
         )}
 
-        {/* Photorealistic Duck Character with contact shadow and waddling gait */}
+        {/* Directional Photorealistic Adult Duck with Dynamic Step Walk Cycle */}
         <div
           onClick={handleDuckClick}
-          style={{
-            transform: facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
-            transformOrigin: 'center bottom',
-          }}
-          className={`cursor-pointer relative transition-transform duration-100 ${
-            isWaddling ? 'duck-waddle-photo-anim' : 'hover:scale-105 active:scale-95'
-          }`}
+          className="cursor-pointer relative hover:scale-105 active:scale-95 transition-transform duration-100"
           title="QUACK!"
         >
-          {/* Subtle soft contact shadow under duck feet */}
+          {/* Soft contact shadow on ground */}
           <div
-            className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-14 h-2.5 bg-stone-900/15 rounded-full blur-[2px] transition-all duration-150 ${
-              isWaddling ? 'scale-x-85 opacity-30' : 'scale-x-100 opacity-60'
+            className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-3 bg-stone-900/15 rounded-full blur-[2px] transition-all duration-150 ${
+              isWaddling ? 'scale-x-90 opacity-30' : 'scale-x-100 opacity-60'
             }`}
           />
 
-          <img
-            src={duckPhoto}
-            alt="Photorealistic Duck"
-            className="w-20 h-20 sm:w-24 sm:h-24 object-contain filter drop-shadow-sm pointer-events-none select-none"
-            draggable={false}
-          />
+          {/* Direction 1: Walking UP (Back view seen from behind, walking away) */}
+          {direction === 'up' && (
+            <img
+              src={adultDuckBack}
+              alt="Adult Duck Walking Up"
+              style={{
+                transform: walkStep === 1 ? 'scaleX(-1)' : 'scaleX(1)',
+                transformOrigin: 'center bottom',
+              }}
+              className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
+                isWaddling ? 'duck-waddle-vert-anim' : ''
+              }`}
+              draggable={false}
+            />
+          )}
+
+          {/* Direction 2: Walking DOWN (Front view facing the viewer, walking forward) */}
+          {direction === 'down' && (
+            <img
+              src={adultDuckFront}
+              alt="Adult Duck Walking Down"
+              style={{
+                transform: walkStep === 1 ? 'scaleX(-1)' : 'scaleX(1)',
+                transformOrigin: 'center bottom',
+              }}
+              className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
+                isWaddling ? 'duck-waddle-vert-anim' : ''
+              }`}
+              draggable={false}
+            />
+          )}
+
+          {/* Direction 3: Walking SIDEWAYS (Side view facing left or right) */}
+          {direction === 'side' && (
+            <img
+              src={adultDuckSide}
+              alt="Adult Duck Walking Side"
+              style={{
+                transform: facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
+                transformOrigin: 'center bottom',
+              }}
+              className={`w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none ${
+                isWaddling ? 'duck-waddle-side-anim' : ''
+              }`}
+              draggable={false}
+            />
+          )}
         </div>
       </div>
     </>
