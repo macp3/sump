@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     
     # Database
     DATABASE_URL: str = "sqlite:///./sump.db"
+
+    @field_validator("DATABASE_URL", mode="before")
+    def resolve_database_url(cls, v: Union[str, None]) -> str:
+        if os.path.exists("/data/sump.db"):
+            return "sqlite:////data/sump.db"
+        if os.path.isdir("/data") and (not v or v == "sqlite:///./sump.db"):
+            return "sqlite:////data/sump.db"
+        return v or "sqlite:///./sump.db"
     
     # Relationship configuration
     RELATIONSHIP_START_DATE: str = "2024-01-01"
