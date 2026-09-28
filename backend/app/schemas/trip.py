@@ -122,8 +122,8 @@ class TripItineraryItemResponse(TripItineraryItemBase):
 
 # --- Trip Schemas ---
 class TripBase(BaseModel):
-    title: str
     destination: str
+    title: Optional[str] = None
     description: Optional[str] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None

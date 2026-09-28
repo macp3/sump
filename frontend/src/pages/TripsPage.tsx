@@ -197,12 +197,16 @@ export const TripsPage: React.FC = () => {
     try {
       if (editingTrip) {
         await api.updateTrip(editingTrip.id, formData);
+        await fetchTrips();
       } else {
-        await api.createTrip(formData);
+        const created = await api.createTrip(formData);
+        await fetchTrips();
+        if (created && created.id) {
+          setSelectedTripId(created.id);
+        }
       }
       setIsTripModalOpen(false);
       setEditingTrip(null);
-      await fetchTrips();
     } catch (err) {
       alert('Error saving trip: ' + err);
     }
@@ -363,9 +367,6 @@ export const TripsPage: React.FC = () => {
             <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium">
               Travel Planner
             </h1>
-            <p className="text-stone-600 text-sm mt-1 max-w-xl">
-              Propose destinations, compare transportation and accommodations, track expenses, and plan day-by-day itineraries together.
-            </p>
           </div>
 
           <button
@@ -469,7 +470,7 @@ export const TripsPage: React.FC = () => {
                     Estimated Budget
                   </span>
                   <span className="font-serif-editorial text-xl font-medium text-stone-900 mt-0.5 block">
-                    {costs.estimated > 0 ? `${costs.estimated.toFixed(2)} ${currentTrip.currency}` : 'Unset'}
+                    {costs.estimated > 0 ? `${costs.estimated.toFixed(2)} €` : 'Unset'}
                   </span>
                 </div>
 
@@ -478,7 +479,7 @@ export const TripsPage: React.FC = () => {
                     Selected Total
                   </span>
                   <span className="font-serif-editorial text-xl font-medium text-[#9c7526] mt-0.5 block">
-                    {costs.bookedTotal.toFixed(2)} {currentTrip.currency}
+                    {costs.bookedTotal.toFixed(2)} €
                   </span>
                 </div>
 
@@ -487,7 +488,7 @@ export const TripsPage: React.FC = () => {
                     Transport Options
                   </span>
                   <span className="font-serif-editorial text-xl font-medium text-stone-800 mt-0.5 block">
-                    {costs.transportTotal.toFixed(2)} {currentTrip.currency}
+                    {costs.transportTotal.toFixed(2)} €
                   </span>
                 </div>
 
@@ -496,7 +497,7 @@ export const TripsPage: React.FC = () => {
                     Lodging Options
                   </span>
                   <span className="font-serif-editorial text-xl font-medium text-stone-800 mt-0.5 block">
-                    {costs.lodgingTotal.toFixed(2)} {currentTrip.currency}
+                    {costs.lodgingTotal.toFixed(2)} €
                   </span>
                 </div>
               </div>
@@ -593,7 +594,7 @@ export const TripsPage: React.FC = () => {
                         <div>
                           <span className="text-[9px] uppercase tracking-wider text-stone-400 block">Selected / Budget</span>
                           <span className="font-semibold text-stone-900">
-                            {costs.bookedTotal.toFixed(0)} / {costs.estimated > 0 ? `${costs.estimated.toFixed(0)}` : '---'} {trip.currency}
+                            {costs.bookedTotal.toFixed(0)} / {costs.estimated > 0 ? `${costs.estimated.toFixed(0)}` : '---'} €
                           </span>
                         </div>
 
@@ -747,7 +748,7 @@ export const TripsPage: React.FC = () => {
 
                         <div className="text-right">
                           <span className="font-serif-editorial text-xl font-medium text-stone-900">
-                            {transport.cost > 0 ? `${transport.cost.toFixed(2)} ${currentTrip.currency}` : 'Free / Included'}
+                            {transport.cost > 0 ? `${transport.cost.toFixed(2)} €` : 'Free / Included'}
                           </span>
                         </div>
                       </div>
@@ -902,7 +903,7 @@ export const TripsPage: React.FC = () => {
 
                         <div className="text-right">
                           <span className="font-serif-editorial text-xl font-medium text-stone-900">
-                            {lodging.cost > 0 ? `${lodging.cost.toFixed(2)} ${currentTrip.currency}` : 'Free'}
+                            {lodging.cost > 0 ? `${lodging.cost.toFixed(2)} €` : 'Free'}
                           </span>
                         </div>
                       </div>
@@ -1073,7 +1074,7 @@ export const TripsPage: React.FC = () => {
 
                                   {item.cost > 0 && (
                                     <span className="text-xs font-mono-tech font-semibold text-stone-800">
-                                      {item.cost.toFixed(2)} {currentTrip.currency}
+                                      {item.cost.toFixed(2)} €
                                     </span>
                                   )}
                                 </div>
@@ -1165,7 +1166,7 @@ export const TripsPage: React.FC = () => {
                           <div className="flex items-center justify-between text-xs font-mono-tech mb-1">
                             <span className="text-stone-500 uppercase">Budget Allocation</span>
                             <span className="font-semibold text-stone-800">
-                              {costs.bookedTotal.toFixed(2)} of {costs.estimated.toFixed(2)} {currentTrip.currency} ({progressPct.toFixed(0)}%)
+                              {costs.bookedTotal.toFixed(2)} of {costs.estimated.toFixed(2)} € ({progressPct.toFixed(0)}%)
                             </span>
                           </div>
                           <div className="w-full h-2.5 bg-stone-200 rounded-full overflow-hidden">
@@ -1181,21 +1182,21 @@ export const TripsPage: React.FC = () => {
                         <div className="p-3 bg-white rounded border border-[#e5e0d4]">
                           <span className="text-[10px] font-mono-tech uppercase text-stone-400 block">Transit (Selected)</span>
                           <span className="font-serif-editorial text-xl font-medium text-stone-900 mt-1 block">
-                            {costs.transportTotal.toFixed(2)} {currentTrip.currency}
+                            {costs.transportTotal.toFixed(2)} €
                           </span>
                         </div>
 
                         <div className="p-3 bg-white rounded border border-[#e5e0d4]">
                           <span className="text-[10px] font-mono-tech uppercase text-stone-400 block">Lodging (Selected)</span>
                           <span className="font-serif-editorial text-xl font-medium text-stone-900 mt-1 block">
-                            {costs.lodgingTotal.toFixed(2)} {currentTrip.currency}
+                            {costs.lodgingTotal.toFixed(2)} €
                           </span>
                         </div>
 
                         <div className="p-3 bg-white rounded border border-[#e5e0d4]">
                           <span className="text-[10px] font-mono-tech uppercase text-stone-400 block">Activities & Dining</span>
                           <span className="font-serif-editorial text-xl font-medium text-stone-900 mt-1 block">
-                            {costs.activitiesTotal.toFixed(2)} {currentTrip.currency}
+                            {costs.activitiesTotal.toFixed(2)} €
                           </span>
                         </div>
                       </div>
@@ -1241,9 +1242,16 @@ export const TripsPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-[#fcfbf7] border border-[#e5e0d4] rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-[#e5e0d4] pb-2">
-              <h3 className="font-serif-editorial text-2xl text-stone-900">
-                {editingTrip ? 'Edit Trip Proposal' : 'Propose New Adventure'}
-              </h3>
+              <div>
+                <h3 className="font-serif-editorial text-2xl text-stone-900">
+                  {editingTrip ? 'Edit Trip' : 'Propose a Trip'}
+                </h3>
+                <p className="text-xs text-stone-500 font-mono-tech mt-0.5">
+                  {editingTrip
+                    ? 'Update your trip details and preferences.'
+                    : 'Only destination is required. You can add dates, stays, and travel plans together later.'}
+                </p>
+              </div>
               <button onClick={() => setIsTripModalOpen(false)} className="text-stone-400 hover:text-stone-700">
                 <X className="w-4 h-4" />
               </button>
@@ -1256,124 +1264,123 @@ export const TripsPage: React.FC = () => {
                 const formData = new FormData(form);
                 const sDate = formData.get('start_date') as string;
                 const eDate = formData.get('end_date') as string;
+                const destination = ((formData.get('destination') as string) || '').trim();
+                const rawTitle = ((formData.get('title') as string) || '').trim();
+                const title = rawTitle || destination;
 
                 handleSaveTrip({
-                  title: formData.get('title'),
-                  destination: formData.get('destination'),
-                  description: formData.get('description'),
+                  title,
+                  destination,
+                  description: ((formData.get('description') as string) || '').trim() || null,
                   start_date: sDate ? new Date(sDate).toISOString() : null,
                   end_date: eDate ? new Date(eDate).toISOString() : null,
                   estimated_budget: parseFloat(formData.get('estimated_budget') as string) || 0,
-                  currency: formData.get('currency') || 'EUR',
+                  currency: 'EUR',
                   status: formData.get('status') || 'idea',
-                  notes: formData.get('notes'),
+                  notes: ((formData.get('notes') as string) || '').trim() || null,
                 });
               }}
               className="space-y-3 font-mono-tech text-xs"
             >
               <div>
-                <label className="block uppercase text-stone-500 mb-1">Destination *</label>
+                <label className="block uppercase text-stone-600 font-semibold mb-1">Destination *</label>
                 <input
                   name="destination"
                   required
+                  autoFocus
                   defaultValue={editingTrip?.destination || ''}
-                  placeholder="e.g. Rome & Amalfi Coast, Italy"
-                  className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
+                  placeholder="e.g. Rome, Italy or Norwegian Fjords"
+                  className="w-full bg-white border border-[#e5e0d4] p-2.5 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
                 />
               </div>
 
               <div>
-                <label className="block uppercase text-stone-500 mb-1">Trip Title *</label>
+                <label className="block uppercase text-stone-500 mb-1">
+                  Trip Title <span className="text-stone-400 font-normal lowercase">(optional - defaults to destination)</span>
+                </label>
                 <input
                   name="title"
-                  required
                   defaultValue={editingTrip?.title || ''}
-                  placeholder="e.g. Spring Italian Getaway"
+                  placeholder="e.g. Italian Summer Holiday"
                   className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="pt-2 border-t border-[#e5e0d4]/70 space-y-3">
+                <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">
+                  Optional Details
+                </span>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block uppercase text-stone-500 mb-1">Start Date</label>
+                    <input
+                      name="start_date"
+                      type="date"
+                      defaultValue={editingTrip?.start_date ? editingTrip.start_date.split('T')[0] : ''}
+                      className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block uppercase text-stone-500 mb-1">End Date</label>
+                    <input
+                      name="end_date"
+                      type="date"
+                      defaultValue={editingTrip?.end_date ? editingTrip.end_date.split('T')[0] : ''}
+                      className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block uppercase text-stone-500 mb-1">Estimated Budget (€)</label>
+                    <input
+                      name="estimated_budget"
+                      type="number"
+                      step="0.01"
+                      defaultValue={editingTrip?.estimated_budget || ''}
+                      placeholder="1200"
+                      className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block uppercase text-stone-500 mb-1">Status</label>
+                    <select
+                      name="status"
+                      defaultValue={editingTrip?.status || 'idea'}
+                      className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
+                    >
+                      <option value="idea">Idea (Brainstorming)</option>
+                      <option value="planning">Planning (Actively researching)</option>
+                      <option value="booked">Booked (Ready to go!)</option>
+                      <option value="completed">Completed (Past adventure)</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block uppercase text-stone-500 mb-1">Start Date</label>
-                  <input
-                    name="start_date"
-                    type="date"
-                    defaultValue={editingTrip?.start_date ? editingTrip.start_date.split('T')[0] : ''}
-                    className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
+                  <label className="block uppercase text-stone-500 mb-1">Description / Highlights</label>
+                  <textarea
+                    name="description"
+                    rows={2}
+                    defaultValue={editingTrip?.description || ''}
+                    placeholder="Highlights, dreams, or reasons to go..."
+                    className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526] font-sans"
                   />
                 </div>
+
                 <div>
-                  <label className="block uppercase text-stone-500 mb-1">End Date</label>
-                  <input
-                    name="end_date"
-                    type="date"
-                    defaultValue={editingTrip?.end_date ? editingTrip.end_date.split('T')[0] : ''}
-                    className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
+                  <label className="block uppercase text-stone-500 mb-1">Notes & Packing Reminders</label>
+                  <textarea
+                    name="notes"
+                    rows={2}
+                    defaultValue={editingTrip?.notes || ''}
+                    placeholder="Passports, clothing, reservations..."
+                    className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526] font-sans"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2">
-                  <label className="block uppercase text-stone-500 mb-1">Estimated Budget</label>
-                  <input
-                    name="estimated_budget"
-                    type="number"
-                    step="0.01"
-                    defaultValue={editingTrip?.estimated_budget || ''}
-                    placeholder="1200"
-                    className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
-                  />
-                </div>
-                <div>
-                  <label className="block uppercase text-stone-500 mb-1">Currency</label>
-                  <select
-                    name="currency"
-                    defaultValue={editingTrip?.currency || 'EUR'}
-                    className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
-                  >
-                    <option value="EUR">EUR (€)</option>
-                    <option value="PLN">PLN (zł)</option>
-                    <option value="USD">USD ($)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block uppercase text-stone-500 mb-1">Status</label>
-                <select
-                  name="status"
-                  defaultValue={editingTrip?.status || 'idea'}
-                  className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526]"
-                >
-                  <option value="idea">Idea (Brainstorming)</option>
-                  <option value="planning">Planning (Actively researching)</option>
-                  <option value="booked">Booked (Ready to go!)</option>
-                  <option value="completed">Completed (Past adventure)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block uppercase text-stone-500 mb-1">Description / Highlights</label>
-                <textarea
-                  name="description"
-                  rows={2}
-                  defaultValue={editingTrip?.description || ''}
-                  placeholder="Highlights, dreams, or reasons to go..."
-                  className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526] font-sans"
-                />
-              </div>
-
-              <div>
-                <label className="block uppercase text-stone-500 mb-1">Notes & Packing Reminders</label>
-                <textarea
-                  name="notes"
-                  rows={2}
-                  defaultValue={editingTrip?.notes || ''}
-                  placeholder="Passports, clothing, reservations..."
-                  className="w-full bg-white border border-[#e5e0d4] p-2 rounded text-stone-900 focus:outline-none focus:border-[#9c7526] font-sans"
-                />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#e5e0d4]">
@@ -1386,9 +1393,9 @@ export const TripsPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#181c24] text-[#fcd34d] uppercase font-semibold rounded"
+                  className="px-4 py-2 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] uppercase font-semibold rounded transition-colors"
                 >
-                  Save Trip
+                  {editingTrip ? 'Save Changes' : 'Propose Trip'}
                 </button>
               </div>
             </form>
@@ -1450,7 +1457,7 @@ export const TripsPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block uppercase text-stone-500 mb-1">Cost ({currentTrip.currency})</label>
+                  <label className="block uppercase text-stone-500 mb-1">Cost (€)</label>
                   <input
                     name="cost"
                     type="number"
@@ -1632,7 +1639,7 @@ export const TripsPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block uppercase text-stone-500 mb-1">Cost ({currentTrip.currency})</label>
+                  <label className="block uppercase text-stone-500 mb-1">Cost (€)</label>
                   <input
                     name="cost"
                     type="number"
@@ -1824,7 +1831,7 @@ export const TripsPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block uppercase text-stone-500 mb-1">Estimated Cost ({currentTrip.currency})</label>
+                  <label className="block uppercase text-stone-500 mb-1">Estimated Cost (€)</label>
                   <input
                     name="cost"
                     type="number"

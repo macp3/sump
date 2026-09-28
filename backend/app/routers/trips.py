@@ -48,15 +48,16 @@ def create_trip(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    title = (trip_in.title.strip() if trip_in.title and trip_in.title.strip() else trip_in.destination.strip())
     trip = Trip(
-        title=trip_in.title,
-        destination=trip_in.destination,
+        title=title,
+        destination=trip_in.destination.strip(),
         description=trip_in.description,
         start_date=trip_in.start_date,
         end_date=trip_in.end_date,
-        status=trip_in.status,
-        estimated_budget=trip_in.estimated_budget,
-        currency=trip_in.currency,
+        status=trip_in.status or "idea",
+        estimated_budget=trip_in.estimated_budget or 0.0,
+        currency="EUR",
         notes=trip_in.notes,
         creator_id=current_user.id
     )

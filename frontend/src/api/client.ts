@@ -207,15 +207,15 @@ class ApiClient {
   }
 
   async createTrip(data: {
-    title: string;
     destination: string;
-    description?: string;
-    start_date?: string;
-    end_date?: string;
+    title?: string;
+    description?: string | null;
+    start_date?: string | null;
+    end_date?: string | null;
     status?: string;
     estimated_budget?: number;
     currency?: string;
-    notes?: string;
+    notes?: string | null;
   }): Promise<Trip> {
     return this.request('/trips', {
       method: 'POST',
