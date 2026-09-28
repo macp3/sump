@@ -27,7 +27,11 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     title: "Shared calendar",
-    text: "In the Calendar tab, you can plan dates, trips, and future adventures together in real time.",
+    text: "In the Calendar tab, you can plan dates, milestones, and shared events together in real time.",
+  },
+  {
+    title: "Travel planner",
+    text: "In the Trips tab, you can propose romantic getaways, compare flights and hotels, budget expenses, and build day-by-day itineraries!",
   },
   {
     title: "QUACK!",

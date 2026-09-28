@@ -5,7 +5,11 @@ import {
   CalendarEvent, 
   AppConfig,
   ClockState,
-  MissYouStats
+  MissYouStats,
+  Trip,
+  TripTransport,
+  TripLodging,
+  TripItineraryItem
 } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000/api' : '/api');
@@ -187,6 +191,111 @@ class ApiClient {
   async sendMissYou(): Promise<MissYouStats> {
     return this.request('/miss-you', {
       method: 'POST',
+    });
+  }
+
+  // --- Shared Travel Planner (Trips) ---
+  async getTrips(status?: string): Promise<Trip[]> {
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request(`/trips${query}`);
+  }
+
+  async getTrip(id: number): Promise<Trip> {
+    return this.request(`/trips/${id}`);
+  }
+
+  async createTrip(data: {
+    title: string;
+    destination: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    status?: string;
+    estimated_budget?: number;
+    currency?: string;
+    notes?: string;
+  }): Promise<Trip> {
+    return this.request('/trips', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTrip(id: number, data: Partial<Trip>): Promise<Trip> {
+    return this.request(`/trips/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTrip(id: number): Promise<{ message: string }> {
+    return this.request(`/trips/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Transport Options
+  async addTransport(tripId: number, data: Partial<TripTransport>): Promise<TripTransport> {
+    return this.request(`/trips/${tripId}/transports`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTransport(tripId: number, transportId: number, data: Partial<TripTransport>): Promise<TripTransport> {
+    return this.request(`/trips/${tripId}/transports/${transportId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTransport(tripId: number, transportId: number): Promise<{ message: string }> {
+    return this.request(`/trips/${tripId}/transports/${transportId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Lodging Options
+  async addLodging(tripId: number, data: Partial<TripLodging>): Promise<TripLodging> {
+    return this.request(`/trips/${tripId}/lodgings`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateLodging(tripId: number, lodgingId: number, data: Partial<TripLodging>): Promise<TripLodging> {
+    return this.request(`/trips/${tripId}/lodgings/${lodgingId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteLodging(tripId: number, lodgingId: number): Promise<{ message: string }> {
+    return this.request(`/trips/${tripId}/lodgings/${lodgingId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Itinerary Items
+  async addItineraryItem(tripId: number, data: Partial<TripItineraryItem>): Promise<TripItineraryItem> {
+    return this.request(`/trips/${tripId}/itinerary`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateItineraryItem(tripId: number, itemId: number, data: Partial<TripItineraryItem>): Promise<TripItineraryItem> {
+    return this.request(`/trips/${tripId}/itinerary/${itemId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteItineraryItem(tripId: number, itemId: number): Promise<{ message: string }> {
+    return this.request(`/trips/${tripId}/itinerary/${itemId}`, {
+      method: 'DELETE',
     });
   }
 }

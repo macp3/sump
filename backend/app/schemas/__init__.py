@@ -11,6 +11,20 @@ from app.schemas.date_proposal import (
 from app.schemas.calendar_event import CalendarEventCreate, CalendarEventResponse
 from app.schemas.app_setting import ClockStateResponse
 from app.schemas.miss_you import MissYouStatsResponse
+from app.schemas.trip import (
+    TripCreate,
+    TripUpdate,
+    TripResponse,
+    TripTransportCreate,
+    TripTransportUpdate,
+    TripTransportResponse,
+    TripLodgingCreate,
+    TripLodgingUpdate,
+    TripLodgingResponse,
+    TripItineraryItemCreate,
+    TripItineraryItemUpdate,
+    TripItineraryItemResponse
+)
 
 __all__ = [
     "UserResponse",
@@ -28,5 +42,17 @@ __all__ = [
     "CalendarEventCreate",
     "CalendarEventResponse",
     "ClockStateResponse",
-    "MissYouStatsResponse"
+    "MissYouStatsResponse",
+    "TripCreate",
+    "TripUpdate",
+    "TripResponse",
+    "TripTransportCreate",
+    "TripTransportUpdate",
+    "TripTransportResponse",
+    "TripLodgingCreate",
+    "TripLodgingUpdate",
+    "TripLodgingResponse",
+    "TripItineraryItemCreate",
+    "TripItineraryItemUpdate",
+    "TripItineraryItemResponse"
 ]

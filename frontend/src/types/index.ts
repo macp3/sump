@@ -78,3 +78,81 @@ export interface MissYouStats {
   my_last_sent: string | null;
   partner_name: string;
 }
+
+export type TripStatus = 'idea' | 'planning' | 'booked' | 'completed';
+export type TransportType = 'flight' | 'train' | 'car' | 'bus' | 'ferry' | 'other';
+export type LodgingType = 'hotel' | 'airbnb' | 'apartment' | 'resort' | 'hostel' | 'other';
+
+export interface TripTransport {
+  id: number;
+  trip_id: number;
+  type: TransportType;
+  title: string;
+  departure_location?: string;
+  arrival_location?: string;
+  departure_time?: string;
+  arrival_time?: string;
+  cost: number;
+  booking_reference?: string;
+  booking_url?: string;
+  is_selected: boolean;
+  notes?: string;
+  creator_id: number;
+  created_at: string;
+  creator?: User;
+}
+
+export interface TripLodging {
+  id: number;
+  trip_id: number;
+  type: LodgingType;
+  name: string;
+  location?: string;
+  check_in?: string;
+  check_out?: string;
+  cost: number;
+  booking_url?: string;
+  is_selected: boolean;
+  notes?: string;
+  creator_id: number;
+  created_at: string;
+  creator?: User;
+}
+
+export interface TripItineraryItem {
+  id: number;
+  trip_id: number;
+  day_number: number;
+  item_date?: string;
+  time_of_day?: string;
+  title: string;
+  description?: string;
+  location?: string;
+  location_url?: string;
+  cost: number;
+  category: string;
+  is_completed: boolean;
+  creator_id: number;
+  created_at: string;
+  creator?: User;
+}
+
+export interface Trip {
+  id: number;
+  title: string;
+  destination: string;
+  description?: string;
+  start_date?: string;
+  end_date?: string;
+  status: TripStatus;
+  estimated_budget: number;
+  currency: string;
+  notes?: string;
+  creator_id: number;
+  created_at: string;
+  updated_at: string;
+  creator?: User;
+  transports: TripTransport[];
+  lodgings: TripLodging[];
+  itinerary_items: TripItineraryItem[];
+}
