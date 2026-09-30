@@ -13,7 +13,8 @@ import {
   FridgeItem,
   ShoppingItem,
   MealPlan,
-  PhotoItem
+  PhotoItem,
+  ImBoredResponse
 } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000/api' : '/api');
@@ -118,6 +119,13 @@ class ApiClient {
   async removeAvatar(): Promise<User> {
     return this.request('/users/avatar', {
       method: 'DELETE',
+    });
+  }
+
+  async sendImBored(customMessage?: string): Promise<ImBoredResponse> {
+    return this.request('/users/im-bored', {
+      method: 'POST',
+      body: JSON.stringify({ custom_message: customMessage || null }),
     });
   }
 

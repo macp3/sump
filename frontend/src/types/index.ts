@@ -230,3 +230,14 @@ export interface PhotoItem {
   updated_at?: string;
   creator?: User;
 }
+
+export interface ImBoredResponse {
+  status: 'sent' | 'no_smtp' | 'failed';
+  sender_name: string;
+  recipient_name: string;
+  recipient_email: string;
+  subject: string;
+  body: string;
+  message: string;
+  mailto_url: string;
+}

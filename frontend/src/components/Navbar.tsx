@@ -9,10 +9,14 @@ import {
   CalendarRange,
   Compass,
   ChefHat,
-  Camera
+  Camera,
+  Mail
 } from 'lucide-react';
 import maciejAvatar from '../assets/Maciej.jpg';
 import selinaAvatar from '../assets/Selina.jpg';
+import { api } from '../api/client';
+import { ImBoredResponse } from '../types';
+import { ImBoredModal } from './ImBoredModal';
 
 interface NavbarProps {
   activeTab: 'dashboard' | 'calendar' | 'trips' | 'cooking' | 'photos';
@@ -34,17 +38,65 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isSelina = user?.username?.toLowerCase().includes('selina') || user?.display_name?.toLowerCase().includes('selina');
   const userPhoto = user?.avatar_url || (isSelina ? selinaAvatar : maciejAvatar);
 
+  const [isSendingBored, setIsSendingBored] = useState(false);
+  const [boredResult, setBoredResult] = useState<ImBoredResponse | null>(null);
+  const [isBoredModalOpen, setIsBoredModalOpen] = useState(false);
+
+  const handleImBored = async () => {
+    setIsSendingBored(true);
+    try {
+      const res = await api.sendImBored();
+      setBoredResult(res);
+      setIsBoredModalOpen(true);
+    } catch (err: any) {
+      setBoredResult({
+        status: 'failed',
+        sender_name: user?.display_name || 'User',
+        recipient_name: isSelina ? 'Maciej' : 'Selina',
+        recipient_email: isSelina ? 'maciej.pietras123@gmail.com' : 'untermairselina@gmail.com',
+        subject: `[SUMP] ${user?.display_name || 'User'} is bored!`,
+        body: 'I am bored!',
+        message: err.message || 'Wystapil blad podczas wysylania powiadomienia.',
+        mailto_url: `mailto:${isSelina ? 'maciej.pietras123@gmail.com' : 'untermairselina@gmail.com'}?subject=${encodeURIComponent('[SUMP] I am bored!')}&body=${encodeURIComponent('I am bored!')}`
+      });
+      setIsBoredModalOpen(true);
+    } finally {
+      setIsSendingBored(false);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full bg-[#f6f4ee]/95 backdrop-blur-md border-b border-[#e5e0d4]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-6">
-        {/* Brand: JUST "SUMP" */}
-        <div 
-          onClick={() => setActiveTab('dashboard')}
-          className="flex items-center cursor-pointer select-none py-2"
-        >
-          <span className="font-serif-editorial text-2xl sm:text-3xl tracking-widest text-[#181c24] font-medium uppercase hover:text-[#b58c38] transition-colors">
-            SUMP
-          </span>
+        {/* Brand & IM BORED Button in top-left corner */}
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          <div 
+            onClick={() => setActiveTab('dashboard')}
+            className="flex items-center cursor-pointer select-none py-2"
+          >
+            <span className="font-serif-editorial text-2xl sm:text-3xl tracking-widest text-[#181c24] font-medium uppercase hover:text-[#b58c38] transition-colors">
+              SUMP
+            </span>
+          </div>
+
+          <button
+            onClick={handleImBored}
+            disabled={isSendingBored}
+            className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-mono-tech text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-xs hover:shadow-md transition-all duration-150 border border-red-700 flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-60"
+            title="Wyslij powiadomienie email 'IM BORED' do partnera"
+          >
+            {isSendingBored ? (
+              <>
+                <span className="w-2.5 h-2.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span>Sending...</span>
+              </>
+            ) : (
+              <>
+                <Mail className="w-3.5 h-3.5" />
+                <span>IM BORED</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Navigation: 01 Overview, 02 Calendar */}
@@ -266,6 +318,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       )}
+
+      {/* IM BORED Modal Feedback & Mail Client Trigger */}
+      <ImBoredModal
+        isOpen={isBoredModalOpen}
+        onClose={() => setIsBoredModalOpen(false)}
+        result={boredResult}
+      />
     </header>
   );
 };

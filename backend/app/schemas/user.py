@@ -27,3 +27,16 @@ class UserMoodUpdate(BaseModel):
 class PasswordChangeRequest(BaseModel):
     old_password: str
     new_password: str
+
+class ImBoredRequest(BaseModel):
+    custom_message: Optional[str] = None
+
+class ImBoredResponse(BaseModel):
+    status: str
+    sender_name: str
+    recipient_name: str
+    recipient_email: str
+    subject: str
+    body: str
+    message: str
+    mailto_url: str

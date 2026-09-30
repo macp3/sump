@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
-from typing import List, Union
+from typing import List, Union, Optional
 import os
 
 class Settings(BaseSettings):
@@ -33,6 +33,16 @@ class Settings(BaseSettings):
     USER2_USERNAME: str = "selina"
     USER2_DISPLAY_NAME: str = "Selina"
     USER2_INITIAL_PASSWORD: str = "Selina123!"
+
+    # Email / SMTP configuration
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_FROM: Optional[str] = None
+    SMTP_USE_TLS: bool = True
+    MACIEJ_EMAIL: str = "maciej.pietras123@gmail.com"
+    SELINA_EMAIL: str = "untermairselina@gmail.com"
     
     # CORS Origins (accepts comma separated string or list)
     CORS_ORIGINS: Union[List[str], str] = [
