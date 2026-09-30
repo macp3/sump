@@ -131,6 +131,48 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
     }
   };
 
+  // Drag and drop reordering state
+  const [draggedPhotoId, setDraggedPhotoId] = useState<number | null>(null);
+  const [dragOverPhotoId, setDragOverPhotoId] = useState<number | null>(null);
+
+  const handleCardDragStart = (e: React.DragEvent, id: number) => {
+    setDraggedPhotoId(id);
+    e.dataTransfer.setData('text/plain', String(id));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleCardDragOver = (e: React.DragEvent, targetId: number) => {
+    e.preventDefault();
+    if (draggedPhotoId && draggedPhotoId !== targetId && dragOverPhotoId !== targetId) {
+      setDragOverPhotoId(targetId);
+    }
+  };
+
+  const handleCardDragLeave = (e: React.DragEvent, targetId: number) => {
+    if (dragOverPhotoId === targetId) {
+      setDragOverPhotoId(null);
+    }
+  };
+
+  const handleCardDrop = async (e: React.DragEvent, targetId: number) => {
+    e.preventDefault();
+    setDragOverPhotoId(null);
+    if (!draggedPhotoId || draggedPhotoId === targetId) return;
+
+    const sourceIdx = photos.findIndex((p) => p.id === draggedPhotoId);
+    const targetIdx = photos.findIndex((p) => p.id === targetId);
+    if (sourceIdx < 0 || targetIdx < 0) return;
+
+    try {
+      await api.updatePhoto(draggedPhotoId, { order_index: targetIdx });
+      onPhotosChange();
+    } catch (err) {
+      console.error('Failed to reorder photo:', err);
+    } finally {
+      setDraggedPhotoId(null);
+    }
+  };
+
   return (
     <div className="space-y-8 pb-20">
       {/* 1. Header Banner */}
@@ -266,7 +308,22 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
           {filteredPhotos.map((photo) => (
             <div
               key={photo.id}
-              className="group arch-surface p-2 sm:p-2.5 pb-3 border border-[#e5e0d4] shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+              draggable
+              onDragStart={(e) => handleCardDragStart(e, photo.id)}
+              onDragOver={(e) => handleCardDragOver(e, photo.id)}
+              onDragLeave={(e) => handleCardDragLeave(e, photo.id)}
+              onDrop={(e) => handleCardDrop(e, photo.id)}
+              onDragEnd={() => {
+                setDraggedPhotoId(null);
+                setDragOverPhotoId(null);
+              }}
+              className={`group arch-surface p-2 sm:p-2.5 pb-3 border border-[#e5e0d4] shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-grab active:cursor-grabbing ${
+                dragOverPhotoId === photo.id
+                  ? 'translate-x-3.5 scale-95 border-[#9c7526] ring-2 ring-[#9c7526]/30 shadow-md'
+                  : ''
+              } ${
+                draggedPhotoId === photo.id ? 'opacity-30 scale-90 border-dashed border-stone-400' : ''
+              }`}
             >
               <div>
                 {/* Photo Thumbnail Container */}

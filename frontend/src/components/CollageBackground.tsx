@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { PhotoItem } from '../types';
 
 interface CollageBackgroundProps {
@@ -54,10 +54,119 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
   photos,
   onMoveToTab,
 }) => {
-  // If photos list is passed, use photos that have in_background === true; otherwise fallback
   const activePhotos = photos
     ? photos.filter((p) => p.in_background)
     : FALLBACK_PHOTOS;
+
+  // Stored drag positions for each photo (persists across dragging during the session)
+  const [dragOffsets, setDragOffsets] = useState<Record<number, { x: number; y: number }>>({});
+  // Dynamic repulsion offsets pushed onto neighboring photos in real time
+  const [repelOffsets, setRepelOffsets] = useState<Record<number, { x: number; y: number }>>({});
+  const [draggingId, setDraggingId] = useState<number | null>(null);
+
+  const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const dragStartRef = useRef<{
+    id: number;
+    startX: number;
+    startY: number;
+    initialOffsetX: number;
+    initialOffsetY: number;
+    pointerId: number;
+  } | null>(null);
+
+  const handlePointerDown = (photoId: number, e: React.PointerEvent<HTMLDivElement>) => {
+    // If clicked on action button (e.g. "To Tab"), let button handle it
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+
+    e.preventDefault();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+
+    const currentOffset = dragOffsets[photoId] || { x: 0, y: 0 };
+    dragStartRef.current = {
+      id: photoId,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialOffsetX: currentOffset.x,
+      initialOffsetY: currentOffset.y,
+      pointerId: e.pointerId,
+    };
+    setDraggingId(photoId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current) return;
+    const { id, startX, startY, initialOffsetX, initialOffsetY } = dragStartRef.current;
+
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+
+    const newX = initialOffsetX + deltaX;
+    const newY = initialOffsetY + deltaY;
+
+    // Update dragged photo position
+    setDragOffsets((prev) => ({
+      ...prev,
+      [id]: { x: newX, y: newY },
+    }));
+
+    // Calculate fluid repulsion on all other active photos
+    const draggedEl = itemRefs.current.get(id);
+    if (!draggedEl) return;
+
+    const rectD = draggedEl.getBoundingClientRect();
+    const centerD = {
+      x: rectD.left + rectD.width / 2,
+      y: rectD.top + rectD.height / 2,
+    };
+
+    const REPEL_RADIUS = 220; // Proximity threshold in pixels
+    const MAX_PUSH = 95;      // Max push distance in pixels
+    const newRepels: Record<number, { x: number; y: number }> = {};
+
+    activePhotos.forEach((other) => {
+      if (other.id === id) return;
+      const otherEl = itemRefs.current.get(other.id);
+      if (!otherEl) return;
+
+      const rectO = otherEl.getBoundingClientRect();
+      const currentRepel = repelOffsets[other.id] || { x: 0, y: 0 };
+      // Base center without current temporary repulsion offset
+      const baseCenterX = rectO.left + rectO.width / 2 - currentRepel.x;
+      const baseCenterY = rectO.top + rectO.height / 2 - currentRepel.y;
+
+      const vx = baseCenterX - centerD.x;
+      const vy = baseCenterY - centerD.y;
+      const dist = Math.hypot(vx, vy);
+
+      if (dist < REPEL_RADIUS) {
+        // Smooth organic cosine falloff: maximum repulsion when close, gently tapering to 0
+        const norm = dist / REPEL_RADIUS;
+        const factor = Math.cos(norm * (Math.PI / 2));
+        const force = factor * MAX_PUSH;
+        const angle = dist === 0 ? 0 : Math.atan2(vy, vx);
+
+        newRepels[other.id] = {
+          x: Math.round(Math.cos(angle) * force),
+          y: Math.round(Math.sin(angle) * force),
+        };
+      }
+    });
+
+    setRepelOffsets(newRepels);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragStartRef.current) {
+      try {
+        e.currentTarget.releasePointerCapture(dragStartRef.current.pointerId);
+      } catch {}
+      dragStartRef.current = null;
+      setDraggingId(null);
+      setRepelOffsets({});
+    }
+  };
 
   return (
     <div
@@ -99,14 +208,12 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
         }
 
         .scattered-photo-item {
-          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, opacity 0.35s ease;
           will-change: transform;
         }
 
-        .scattered-photo-item:hover {
-          animation-play-state: paused !important;
-          transform: scale(1.15) rotate(0deg) !important;
-          z-index: 30 !important;
+        .scattered-photo-item:hover:not(.is-dragging):not(.is-repelled) {
+          transform: scale(1.14) rotate(0deg) !important;
+          z-index: 25 !important;
           opacity: 1 !important;
         }
       `}</style>
@@ -116,20 +223,48 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
         const slot = POSITION_SLOTS[index % POSITION_SLOTS.length];
         const rot = photo.rotation || slot.rotate;
 
+        const isDragging = draggingId === photo.id;
+        const userOffset = dragOffsets[photo.id] || { x: 0, y: 0 };
+        const repel = repelOffsets[photo.id] || { x: 0, y: 0 };
+
+        const totalX = userOffset.x + (isDragging ? 0 : repel.x);
+        const totalY = userOffset.y + (isDragging ? 0 : repel.y);
+        const isDisplaced = isDragging || repel.x !== 0 || repel.y !== 0;
+
         return (
           <div
             key={photo.id}
+            ref={(el) => {
+              if (el) itemRefs.current.set(photo.id, el);
+              else itemRefs.current.delete(photo.id);
+            }}
+            onPointerDown={(e) => handlePointerDown(photo.id, e)}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
             style={{
               position: 'absolute',
               top: slot.top,
               left: slot.left,
               ['--base-rot' as any]: `${rot}deg`,
-              animation: `${slot.anim} ${slot.duration}s ease-in-out infinite`,
+              transform: `translate3d(${totalX}px, ${totalY}px, 0)`,
+              animation: isDisplaced
+                ? 'none'
+                : `${slot.anim} ${slot.duration}s ease-in-out infinite`,
               animationDelay: `${slot.delay}s`,
+              transition: isDragging
+                ? 'none'
+                : 'transform 0.38s cubic-bezier(0.18, 0.9, 0.28, 1.15)',
+              zIndex: isDragging ? 35 : (repel.x !== 0 || repel.y !== 0 ? 15 : 0),
+              touchAction: 'none',
             }}
-            className={`group scattered-photo-item pointer-events-auto cursor-pointer opacity-75 sm:opacity-85 hover:opacity-100 ${slot.widthClass} ${slot.className || ''}`}
+            className={`group scattered-photo-item pointer-events-auto cursor-grab active:cursor-grabbing opacity-80 sm:opacity-90 hover:opacity-100 ${
+              isDragging ? 'is-dragging scale-110 !opacity-100 z-40' : ''
+            } ${repel.x !== 0 || repel.y !== 0 ? 'is-repelled' : ''} ${slot.widthClass} ${slot.className || ''}`}
           >
-            <div className="bg-white/95 p-1 sm:p-1.5 pb-2 sm:pb-2.5 rounded-xs shadow-sm hover:shadow-xl border border-stone-300/70 transition-shadow duration-300">
+            <div className={`bg-white/95 p-1 sm:p-1.5 pb-2 sm:pb-2.5 rounded-xs shadow-sm hover:shadow-xl border border-stone-300/70 transition-all duration-300 ${
+              isDragging ? 'shadow-2xl border-[#b58c38] ring-2 ring-[#b58c38]/40' : ''
+            }`}>
               <img
                 src={photo.file_url}
                 alt={photo.caption || ''}
@@ -142,7 +277,7 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
               />
 
               {/* Action Button on Hover: Move photo to Tab (take it out of wallpaper) */}
-              {onMoveToTab && (
+              {onMoveToTab && !isDragging && (
                 <button
                   type="button"
                   onClick={(e) => {
