@@ -443,6 +443,19 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
   const lastFleeTimeRef = useRef(0);
   const lastMousePosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
+  // Touch and pointer dragging state for mobile & desktop
+  const [isDraggingDuck, setIsDraggingDuck] = useState(false);
+  const isDraggingRef = useRef(false);
+  const justDraggedRef = useRef(false);
+  const dragStartRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startPosX: number;
+    startPosY: number;
+    hasMoved: boolean;
+  } | null>(null);
+
   // Tab switch reaction quack
   const prevTabRef = useRef(activeTab);
   useEffect(() => {
@@ -568,7 +581,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
   // Spontaneous behavior: Duck runs up to the user on her own occasionally
   useEffect(() => {
     const runInterval = setInterval(() => {
-      if (tourOpen || caughtOpen || isMovingRef.current || approachMessage) return;
+      if (tourOpen || caughtOpen || isMovingRef.current || approachMessage || isDraggingRef.current) return;
 
       if (Math.random() > 0.35) {
         const mouse = lastMousePosRef.current;
@@ -606,10 +619,12 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     return () => clearInterval(runInterval);
   }, [pos, tourOpen, caughtOpen, approachMessage]);
 
-  // Fleeing mouse cursor logic
+  // Fleeing mouse cursor logic (desktop only, disabled on touch devices to allow natural mobile interaction)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (tourOpen || caughtOpen || isMovingRef.current) return;
+      // Do not flee on touch-only devices to avoid phantom touch flee
+      if (window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
+      if (tourOpen || caughtOpen || isMovingRef.current || isDraggingRef.current) return;
 
       const now = Date.now();
       if (now - lastFleeTimeRef.current < 250) return;
@@ -671,8 +686,94 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [pos, tourOpen, caughtOpen, approachMessage]);
 
-  const handleDuckClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // Pointer drag event handlers (enables smooth touch dragging on phones as well as mouse dragging on desktop)
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+
+    dragStartRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startPosX: pos.x,
+      startPosY: pos.y,
+      hasMoved: false,
+    };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return;
+
+    const dx = e.clientX - dragStartRef.current.startX;
+    const dy = e.clientY - dragStartRef.current.startY;
+    const dist = Math.hypot(dx, dy);
+
+    // If moved more than 6px, treat as active drag
+    if (dist > 6 || dragStartRef.current.hasMoved) {
+      if (!dragStartRef.current.hasMoved) {
+        dragStartRef.current.hasMoved = true;
+        isDraggingRef.current = true;
+        setIsDraggingDuck(true);
+        setIsWaddling(true);
+        if (approachMessage) {
+          setApproachMessage(null);
+        }
+      }
+
+      const duckEl = duckRef.current;
+      const duckWidth = duckEl?.offsetWidth || 80;
+      const duckHeight = duckEl?.offsetHeight || 80;
+      const padding = 8;
+      const maxX = Math.max(10, window.innerWidth - duckWidth - padding);
+      const maxY = Math.max(10, window.innerHeight - duckHeight - padding);
+
+      const targetX = Math.max(padding, Math.min(dragStartRef.current.startPosX + dx, maxX));
+      const targetY = Math.max(padding, Math.min(dragStartRef.current.startPosY + dy, maxY));
+
+      updateDirection(pos.x, pos.y, targetX, targetY);
+      setPos({ x: targetX, y: targetY });
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return;
+
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+
+    const hasMoved = dragStartRef.current.hasMoved;
+    dragStartRef.current = null;
+
+    if (hasMoved) {
+      justDraggedRef.current = true;
+      setTimeout(() => {
+        justDraggedRef.current = false;
+      }, 300);
+
+      setIsDraggingDuck(false);
+      setTimeout(() => {
+        isDraggingRef.current = false;
+        setIsWaddling(false);
+        setDirection('side');
+      }, 150);
+
+      playQuackSound(1.05);
+      setQuackBubble('QUACK!');
+      setTimeout(() => setQuackBubble(null), 800);
+    } else {
+      setIsDraggingDuck(false);
+      isDraggingRef.current = false;
+    }
+  };
+
+  const handleDuckClick = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (justDraggedRef.current || isDraggingRef.current) return;
+
     playQuackSound(0.95);
     setIsWaddling(true);
     setApproachMessage(null);
@@ -887,14 +988,19 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       {/* Main Free-Roaming Adult Duck Character */}
       <div
         ref={duckRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         style={{
           position: 'fixed',
           left: `${pos.x}px`,
           top: `${pos.y}px`,
-          transition: isWaddling ? 'left 0.35s ease-out, top 0.35s ease-out' : 'none',
+          transition: isWaddling && !isDraggingDuck ? 'left 0.35s ease-out, top 0.35s ease-out' : 'none',
           zIndex: 60,
+          touchAction: 'none',
         }}
-        className="select-none pointer-events-auto"
+        className="select-none pointer-events-auto cursor-grab active:cursor-grabbing"
       >
         {/* Floating Quack indicator badge */}
         {quackBubble && (
