@@ -108,6 +108,32 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
     });
   }, [activePhotos]);
 
+  // Listen for duck mischievous photo-shoving antics
+  useEffect(() => {
+    const handleDuckMovePhoto = (e: Event) => {
+      const customEvent = e as CustomEvent<{ photoId: number; targetSlotIndex: number }>;
+      const { photoId, targetSlotIndex } = customEvent.detail || {};
+      if (!photoId || targetSlotIndex === undefined) return;
+
+      setPhotoSlotMap((prev) => {
+        const next = { ...prev };
+        const currentSlot = next[photoId];
+        // If another photo is already in targetSlotIndex, swap their slots
+        const otherEntry = Object.entries(next).find(
+          ([id, slot]) => Number(id) !== photoId && slot === targetSlotIndex
+        );
+        if (otherEntry && currentSlot !== undefined) {
+          next[Number(otherEntry[0])] = currentSlot;
+        }
+        next[photoId] = targetSlotIndex;
+        return next;
+      });
+    };
+
+    window.addEventListener('duck-move-photo', handleDuckMovePhoto);
+    return () => window.removeEventListener('duck-move-photo', handleDuckMovePhoto);
+  }, []);
+
   const startDrag = (
     photoId: number,
     clientX: number,
@@ -493,6 +519,8 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
         return (
           <div
             key={photo.id}
+            data-photo-id={photo.id}
+            data-slot-idx={slotIdx}
             ref={(el) => {
               if (el) itemRefs.current.set(photo.id, el);
               else itemRefs.current.delete(photo.id);

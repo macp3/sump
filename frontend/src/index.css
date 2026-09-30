@@ -82,3 +82,30 @@
   border: 1px solid #ebd4ff;
   color: #7e22ce;
 }
+
+/* Duck playful nibble wobble effect */
+.duck-nibbled-item {
+  animation: duck-nibble-jiggle 0.5s ease-in-out !important;
+  will-change: transform;
+}
+
+@keyframes duck-nibble-jiggle {
+  0% { transform: scale(1) rotate(0deg); }
+  20% { transform: scale(0.985) rotate(-1.5deg); }
+  40% { transform: scale(1.015) rotate(1.2deg); }
+  60% { transform: scale(0.995) rotate(-0.8deg); }
+  80% { transform: scale(1.005) rotate(0.4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Glass ripple on window edge peck */
+@keyframes duck-edge-shockwave {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.duck-glass-ripple {
+  animation: duck-edge-shockwave 0.55s ease-out forwards;
+  pointer-events: none;
+}
+

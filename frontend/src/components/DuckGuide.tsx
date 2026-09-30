@@ -456,6 +456,12 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     hasMoved: boolean;
   } | null>(null);
 
+  // Mischievous antics states (pecking cards, glass edges, shoving background photos)
+  const [isPecking, setIsPecking] = useState(false);
+  const [nibbleCrumbs, setNibbleCrumbs] = useState<Array<{ id: number; x: number; y: number; dx: number; dy: number }>>([]);
+  const [glassRipple, setGlassRipple] = useState<{ x: number; y: number } | null>(null);
+  const isBusyAnticRef = useRef(false);
+
   // Tab switch reaction quack
   const prevTabRef = useRef(activeTab);
   useEffect(() => {
@@ -518,6 +524,78 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     } catch {
       // Gracefully handled if browser audio policy blocks
     }
+  };
+
+  // Synthesized realistic wooden/beak peck sound
+  const playPeckSound = (pitchMod = 1) => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime((850 + Math.random() * 200) * pitchMod, now);
+      osc.frequency.exponentialRampToValueAtTime(320 * pitchMod, now + 0.035);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1100 * pitchMod, now);
+      filter.Q.setValueAtTime(4.5, now);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.25, now + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } catch {}
+  };
+
+  // Synthesized crystalline glass tap sound
+  const playGlassTapSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(2400 + Math.random() * 300, now);
+      osc.frequency.exponentialRampToValueAtTime(1800, now + 0.045);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.2, now + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } catch {}
+  };
+
+  const triggerNibbleCrumbs = (originX: number, originY: number) => {
+    const crumbs = Array.from({ length: 4 }, (_, i) => ({
+      id: Date.now() + i,
+      x: originX,
+      y: originY,
+      dx: (Math.random() - 0.5) * 40,
+      dy: -15 - Math.random() * 25,
+    }));
+    setNibbleCrumbs(crumbs);
+    setTimeout(() => setNibbleCrumbs([]), 450);
   };
 
   // True multi-frame walk cycle alternator (switching feet frames while walking)
@@ -686,9 +764,235 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [pos, tourOpen, caughtOpen, approachMessage]);
 
+  // Mischievous antics: occasionally pecks page cards/headings, window edges, or shoves background photos
+  useEffect(() => {
+    const anticInterval = setInterval(() => {
+      if (
+        tourOpen ||
+        caughtOpen ||
+        isMovingRef.current ||
+        isDraggingRef.current ||
+        isBusyAnticRef.current ||
+        approachMessage ||
+        document.hidden
+      ) {
+        return;
+      }
+
+      // Pick antic category: photo = peck photo & move slot, card = nibble card/text, edge = peck window edge
+      const types = ['photo', 'card', 'edge'] as const;
+      const chosenType = types[Math.floor(Math.random() * types.length)];
+
+      if (chosenType === 'photo') {
+        const photoEls = Array.from(
+          document.querySelectorAll<HTMLElement>('.scattered-photo-item[data-photo-id]')
+        ).filter((el) => {
+          const rect = el.getBoundingClientRect();
+          return rect.width > 0 && rect.top > 0 && rect.bottom < window.innerHeight;
+        });
+
+        if (photoEls.length === 0) return;
+        const targetEl = photoEls[Math.floor(Math.random() * photoEls.length)];
+        const photoId = Number(targetEl.dataset.photoId);
+        const currentSlot = Number(targetEl.dataset.slotIdx || 0);
+        if (!photoId) return;
+
+        isBusyAnticRef.current = true;
+        const rect = targetEl.getBoundingClientRect();
+        const approachX = Math.max(
+          10,
+          Math.min(rect.left + (rect.width > 80 ? 30 : 5), window.innerWidth - 90)
+        );
+        const approachY = Math.max(10, Math.min(rect.top + 20, window.innerHeight - 90));
+
+        isMovingRef.current = true;
+        setIsWaddling(true);
+        updateDirection(pos.x, pos.y, approachX, approachY);
+        setPos({ x: approachX, y: approachY });
+
+        setTimeout(() => {
+          if (!isBusyAnticRef.current) return;
+          setIsWaddling(false);
+          isMovingRef.current = false;
+          setFacingLeft(pos.x > rect.left + rect.width / 2);
+
+          setIsPecking(true);
+          targetEl.classList.add('duck-nibbled-item');
+
+          playPeckSound(1.1);
+          setTimeout(() => playPeckSound(1.15), 180);
+          setTimeout(() => playPeckSound(1.05), 360);
+          triggerNibbleCrumbs(approachX + (pos.x > rect.left + rect.width / 2 ? 5 : 65), approachY + 30);
+
+          setTimeout(() => {
+            if (!isBusyAnticRef.current) return;
+            setIsPecking(false);
+            targetEl.classList.remove('duck-nibbled-item');
+
+            const isMobile = window.innerWidth < 640;
+            const validSlots = isMobile
+              ? [0, 2, 4, 7, 9, 11]
+              : Array.from({ length: 20 }, (_, i) => i);
+            const otherSlots = validSlots.filter((s) => s !== currentSlot);
+            const newSlot = otherSlots[Math.floor(Math.random() * otherSlots.length)];
+
+            window.dispatchEvent(
+              new CustomEvent('duck-move-photo', {
+                detail: { photoId, targetSlotIndex: newSlot },
+              })
+            );
+
+            setQuackBubble('*shove!*');
+            playQuackSound(1.2);
+
+            setTimeout(() => {
+              if (!isBusyAnticRef.current) return;
+              setQuackBubble('QUACK!');
+              setTimeout(() => setQuackBubble(null), 800);
+              isBusyAnticRef.current = false;
+            }, 600);
+          }, 850);
+        }, 500);
+      } else if (chosenType === 'card') {
+        const candidates = Array.from(
+          document.querySelectorAll<HTMLElement>(
+            '.arch-surface, .arch-card, h1, h3, .love-counter-card'
+          )
+        ).filter((el) => {
+          const rect = el.getBoundingClientRect();
+          return (
+            rect.width > 60 &&
+            rect.height > 30 &&
+            rect.top > 70 &&
+            rect.bottom < window.innerHeight - 80 &&
+            rect.left >= 0 &&
+            rect.right <= window.innerWidth
+          );
+        });
+
+        if (candidates.length === 0) return;
+        const targetEl = candidates[Math.floor(Math.random() * candidates.length)];
+        const rect = targetEl.getBoundingClientRect();
+
+        isBusyAnticRef.current = true;
+        const approachRight = Math.random() > 0.5;
+        const approachX = approachRight
+          ? Math.min(window.innerWidth - 85, rect.right - 25)
+          : Math.max(10, rect.left - 45);
+        const approachY = Math.max(60, Math.min(rect.top + 10, window.innerHeight - 90));
+
+        isMovingRef.current = true;
+        setIsWaddling(true);
+        updateDirection(pos.x, pos.y, approachX, approachY);
+        setPos({ x: approachX, y: approachY });
+
+        setTimeout(() => {
+          if (!isBusyAnticRef.current) return;
+          setIsWaddling(false);
+          isMovingRef.current = false;
+          setFacingLeft(approachRight);
+
+          setIsPecking(true);
+          targetEl.classList.add('duck-nibbled-item');
+
+          playPeckSound(0.95);
+          setTimeout(() => playPeckSound(1.05), 160);
+          setTimeout(() => playPeckSound(1.0), 320);
+          setTimeout(() => playPeckSound(1.1), 480);
+
+          triggerNibbleCrumbs(approachX + (approachRight ? 10 : 60), approachY + 30);
+          setQuackBubble('*nom nom*');
+
+          setTimeout(() => {
+            if (!isBusyAnticRef.current) return;
+            setIsPecking(false);
+            targetEl.classList.remove('duck-nibbled-item');
+            setQuackBubble('QUACK!');
+            playQuackSound(1.1);
+
+            setTimeout(() => {
+              if (!isBusyAnticRef.current) return;
+              setQuackBubble(null);
+              isBusyAnticRef.current = false;
+            }, 800);
+          }, 900);
+        }, 500);
+      } else {
+        isBusyAnticRef.current = true;
+        const edges = ['left', 'right', 'bottom', 'top'] as const;
+        const edge = edges[Math.floor(Math.random() * edges.length)];
+
+        let edgeX = 10;
+        let edgeY = 150;
+
+        if (edge === 'left') {
+          edgeX = 8;
+          edgeY = 100 + Math.random() * (window.innerHeight - 200);
+        } else if (edge === 'right') {
+          edgeX = window.innerWidth - 85;
+          edgeY = 100 + Math.random() * (window.innerHeight - 200);
+        } else if (edge === 'bottom') {
+          edgeX = 50 + Math.random() * (window.innerWidth - 150);
+          edgeY = window.innerHeight - 85;
+        } else {
+          edgeX = 50 + Math.random() * (window.innerWidth - 150);
+          edgeY = 70;
+        }
+
+        isMovingRef.current = true;
+        setIsWaddling(true);
+        updateDirection(pos.x, pos.y, edgeX, edgeY);
+        setPos({ x: edgeX, y: edgeY });
+
+        setTimeout(() => {
+          if (!isBusyAnticRef.current) return;
+          setIsWaddling(false);
+          isMovingRef.current = false;
+          if (edge === 'left') setFacingLeft(true);
+          if (edge === 'right') setFacingLeft(false);
+
+          setIsPecking(true);
+          setGlassRipple({
+            x: edgeX + (edge === 'left' ? 5 : edge === 'right' ? 70 : 35),
+            y: edgeY + 35,
+          });
+
+          playGlassTapSound();
+          setTimeout(() => playGlassTapSound(), 170);
+          setTimeout(() => playGlassTapSound(), 340);
+          setQuackBubble('*tap tap*');
+
+          setTimeout(() => {
+            if (!isBusyAnticRef.current) return;
+            setIsPecking(false);
+            setGlassRipple(null);
+            setQuackBubble('QUACK?!');
+            playQuackSound(1.15);
+
+            setTimeout(() => {
+              if (!isBusyAnticRef.current) return;
+              setQuackBubble(null);
+              isBusyAnticRef.current = false;
+            }, 800);
+          }, 850);
+        }, 500);
+      }
+    }, 18000 + Math.random() * 10000);
+
+    return () => clearInterval(anticInterval);
+  }, [pos, tourOpen, caughtOpen, approachMessage]);
+
   // Pointer drag event handlers (enables smooth touch dragging on phones as well as mouse dragging on desktop)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+    if (isBusyAnticRef.current) {
+      isBusyAnticRef.current = false;
+      setIsPecking(false);
+      setQuackBubble(null);
+      setGlassRipple(null);
+      setNibbleCrumbs([]);
+    }
 
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
@@ -855,7 +1159,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
 
   return (
     <>
-      {/* Subtle bounce keyframes while walking */}
+      {/* Subtle bounce keyframes while walking and pecking */}
       <style>{`
         @keyframes duck-walk-hop {
           0%, 100% { transform: translateY(0px); }
@@ -863,6 +1167,18 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         }
         .duck-walk-hop-anim {
           animation: duck-walk-hop 0.16s infinite ease-in-out;
+        }
+        @keyframes duck-peck-action {
+          0% { transform: translateY(0px) rotate(0deg); }
+          22% { transform: translate(7px, 11px) rotate(22deg); }
+          40% { transform: translate(1px, 2px) rotate(6deg); }
+          62% { transform: translate(9px, 14px) rotate(28deg); }
+          80% { transform: translate(2px, 3px) rotate(8deg); }
+          100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .duck-peck-anim {
+          animation: duck-peck-action 0.42s infinite ease-in-out;
+          transform-origin: 25% 85%;
         }
       `}</style>
 
@@ -1022,8 +1338,8 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
             }`}
           />
 
-          {/* Waddling Hop Wrapper - separates vertical bobbing from directional scaleX flip */}
-          <div className={isWaddling ? 'duck-walk-hop-anim' : ''}>
+          {/* Waddling Hop & Pecking Wrapper - separates vertical bobbing/pecking from directional scaleX flip */}
+          <div className={`${isWaddling ? 'duck-walk-hop-anim' : ''} ${isPecking ? 'duck-peck-anim' : ''}`}>
             <div
               style={{
                 transform: direction === 'side' && facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
@@ -1047,6 +1363,39 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
           </div>
         </div>
       </div>
+
+      {/* Playful bite crumb sparks */}
+      {nibbleCrumbs.length > 0 && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          {nibbleCrumbs.map((crumb) => (
+            <span
+              key={crumb.id}
+              style={{
+                position: 'fixed',
+                left: `${crumb.x}px`,
+                top: `${crumb.y}px`,
+                transform: `translate(${crumb.dx}px, ${crumb.dy}px)`,
+                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                opacity: 0.9,
+              }}
+              className="w-1.5 h-1.5 rounded-full bg-[#b58c38] shadow-xs"
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Glass edge impact ripple */}
+      {glassRipple && (
+        <div
+          style={{
+            position: 'fixed',
+            left: `${glassRipple.x - 20}px`,
+            top: `${glassRipple.y - 20}px`,
+            zIndex: 65,
+          }}
+          className="w-10 h-10 rounded-full border-2 border-[#9c7526]/70 duck-glass-ripple"
+        />
+      )}
     </>
   );
 };
