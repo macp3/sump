@@ -750,8 +750,8 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         isBusyAnticRef.current ||
         document.hidden
       ) {
-        // Retry soon if temporarily busy
-        anticTimerRef.current = setTimeout(runNextAntic, 3500);
+        // Retry later if temporarily busy
+        anticTimerRef.current = setTimeout(runNextAntic, 20000 + Math.random() * 10000);
         return;
       }
 
@@ -770,7 +770,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       }
 
       // Add cursor interaction if desktop and mouse is active
-      const recentMouseMove = Date.now() - lastMouseMoveTimeRef.current < 35000;
+      const recentMouseMove = Date.now() - lastMouseMoveTimeRef.current < 45000;
       const isHoverCapable = window.matchMedia && window.matchMedia('(hover: hover)').matches;
       if (isHoverCapable && recentMouseMove) {
         // Friendly approach to cursor (as requested by user)
@@ -813,7 +813,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
             if (!isBusyAnticRef.current) return;
             setApproachMessage(null);
             isBusyAnticRef.current = false;
-            anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
+            anticTimerRef.current = setTimeout(runNextAntic, 75000 + Math.random() * 60000);
           }, 3500);
         }, walkDuration * 1000);
 
@@ -822,7 +822,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         const photoId = Number(targetEl.dataset.photoId);
         const currentSlot = Number(targetEl.dataset.slotIdx || 0);
         if (!photoId) {
-          anticTimerRef.current = setTimeout(runNextAntic, 5000);
+          anticTimerRef.current = setTimeout(runNextAntic, 25000);
           return;
         }
 
@@ -889,7 +889,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
                 if (!isBusyAnticRef.current) return;
                 setQuackBubble(null);
                 isBusyAnticRef.current = false;
-                anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
+                anticTimerRef.current = setTimeout(runNextAntic, 75000 + Math.random() * 60000);
               }, 700);
             }, 600);
           }, 750);
@@ -913,7 +913,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         });
 
         if (candidates.length === 0) {
-          anticTimerRef.current = setTimeout(runNextAntic, 5000);
+          anticTimerRef.current = setTimeout(runNextAntic, 25000);
           return;
         }
 
@@ -967,7 +967,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               if (!isBusyAnticRef.current) return;
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-              anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
+              anticTimerRef.current = setTimeout(runNextAntic, 75000 + Math.random() * 60000);
             }, 700);
           }, 850);
         }, walkDuration * 1000);
@@ -1025,7 +1025,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               setIsWaddling(false);
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-              anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
+              anticTimerRef.current = setTimeout(runNextAntic, 75000 + Math.random() * 60000);
             }, 600);
           }, 450);
         }, walkDuration * 1000);
@@ -1092,7 +1092,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               if (!isBusyAnticRef.current) return;
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-              anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
+              anticTimerRef.current = setTimeout(runNextAntic, 75000 + Math.random() * 60000);
             }, 700);
           }, 800);
         }, walkDuration * 1000);
@@ -1101,8 +1101,8 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
 
     runNextAnticRef.current = runNextAntic;
 
-    // Peaceful initial delay (10-14 seconds after mount)
-    anticTimerRef.current = setTimeout(runNextAntic, 10000 + Math.random() * 4000);
+    // Peaceful initial delay (45-75 seconds after mount)
+    anticTimerRef.current = setTimeout(runNextAntic, 45000 + Math.random() * 30000);
 
     return () => {
       if (anticTimerRef.current) {
@@ -1199,11 +1199,11 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       setQuackBubble('QUACK!');
       setTimeout(() => setQuackBubble(null), 800);
 
-      // Reschedule next autonomous antic after user finishes moving duck
+      // Reschedule next autonomous antic after user finishes moving duck (60-90s)
       if (anticTimerRef.current) clearTimeout(anticTimerRef.current);
       anticTimerRef.current = setTimeout(() => {
         runNextAnticRef.current();
-      }, 18000 + Math.random() * 8000);
+      }, 60000 + Math.random() * 30000);
     } else {
       setIsDraggingDuck(false);
       isDraggingRef.current = false;
