@@ -141,16 +141,13 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
+          <div className="space-y-1">
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
-              [ 05 // ATELIER PHOTOGRAPHY & MEMORIES ]
+              [ 05 // PHOTOGRAPHY & MEMORIES ]
             </span>
             <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium tracking-tight">
               Our Visual Memoir
             </h1>
-            <p className="text-sm text-stone-600 max-w-2xl font-light">
-              Add photographs from your computer, choose which memories float in the atmospheric wallpaper, or archive them safely in this collection.
-            </p>
           </div>
 
           {/* Action: Upload Photo */}

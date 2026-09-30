@@ -331,102 +331,108 @@ export const CookingPage: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-16">
-      {/* Top Banner & Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#e5e0d4] pb-6">
-        <div>
-          <div className="flex items-center gap-2 text-stone-500 font-mono-tech text-xs uppercase tracking-wider mb-1">
-            <ChefHat className="w-4 h-4 text-[#9c7526]" />
-            <span>Kitchen & Culinary Atelier</span>
+      {/* Top Banner & Header Card */}
+      <div className="arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs relative">
+        <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
+        <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
+        <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
+        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#e5e0d4]">
+          <div>
+            <div className="flex items-center gap-2 text-stone-500 font-mono-tech text-xs uppercase tracking-wider mb-1">
+              <ChefHat className="w-4 h-4 text-[#9c7526]" />
+              <span className="text-[10px] font-mono-tech uppercase tracking-[0.2em] text-[#9c7526] font-semibold">
+                [ 04 // CULINARY HORIZON ]
+              </span>
+            </div>
+            <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium tracking-tight">
+              Cooking & Menu Planning
+            </h1>
           </div>
-          <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium">
-            Cooking & Menu Planning
-          </h1>
+
+          {/* Action Button depending on Active Tab */}
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            {activeTab === 'fridge' && (
+              <button
+                onClick={() => {
+                  setEditingFridgeItem(null);
+                  setIsFridgeModalOpen(true);
+                }}
+                className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Fridge Item</span>
+              </button>
+            )}
+
+            {activeTab === 'shopping' && (
+              <button
+                onClick={() => {
+                  setEditingShoppingItem(null);
+                  setIsShoppingModalOpen(true);
+                }}
+                className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add to Shopping List</span>
+              </button>
+            )}
+
+            {activeTab === 'meals' && (
+              <button
+                onClick={() => {
+                  setEditingMeal(null);
+                  setDefaultDay('monday');
+                  setIsMealModalOpen(true);
+                }}
+                className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Propose Meal</span>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Action Button depending on Active Tab */}
-        <div className="flex items-center gap-2">
-          {activeTab === 'fridge' && (
-            <button
-              onClick={() => {
-                setEditingFridgeItem(null);
-                setIsFridgeModalOpen(true);
-              }}
-              className="px-4 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Fridge Item</span>
-            </button>
-          )}
+        {/* Main Tab Navigation */}
+        <div className="flex items-center gap-2 pt-4 font-mono-tech text-xs uppercase tracking-wider overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('meals')}
+            className={`px-3.5 py-1.5 border transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'meals'
+                ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
+                : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
+            }`}
+          >
+            <CalendarDays className="w-4 h-4" />
+            <span>Weekly Menu ({mealPlans.length})</span>
+          </button>
 
-          {activeTab === 'shopping' && (
-            <button
-              onClick={() => {
-                setEditingShoppingItem(null);
-                setIsShoppingModalOpen(true);
-              }}
-              className="px-4 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add to Shopping List</span>
-            </button>
-          )}
+          <button
+            onClick={() => setActiveTab('fridge')}
+            className={`px-3.5 py-1.5 border transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'fridge'
+                ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
+                : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
+            }`}
+          >
+            <Refrigerator className="w-4 h-4" />
+            <span>Fridge & Pantry ({fridgeItems.length})</span>
+          </button>
 
-          {activeTab === 'meals' && (
-            <button
-              onClick={() => {
-                setEditingMeal(null);
-                setDefaultDay('monday');
-                setIsMealModalOpen(true);
-              }}
-              className="px-4 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Propose Meal</span>
-            </button>
-          )}
+          <button
+            onClick={() => setActiveTab('shopping')}
+            className={`px-3.5 py-1.5 border transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'shopping'
+                ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
+                : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Shopping List ({unboughtCount})</span>
+          </button>
         </div>
-      </div>
-
-      {/* Main Tab Navigation */}
-      <div className="flex items-center gap-1 border-b border-[#e5e0d4] font-mono-tech text-xs uppercase tracking-wider overflow-x-auto">
-        <button
-          onClick={() => setActiveTab('meals')}
-          className={`px-5 py-3 flex items-center gap-2 relative transition-all whitespace-nowrap ${
-            activeTab === 'meals' ? 'text-[#9c7526] font-semibold' : 'text-stone-500 hover:text-stone-900'
-          }`}
-        >
-          <CalendarDays className="w-4 h-4" />
-          <span>Weekly Menu ({mealPlans.length})</span>
-          {activeTab === 'meals' && (
-            <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#9c7526]" />
-          )}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('fridge')}
-          className={`px-5 py-3 flex items-center gap-2 relative transition-all whitespace-nowrap ${
-            activeTab === 'fridge' ? 'text-[#9c7526] font-semibold' : 'text-stone-500 hover:text-stone-900'
-          }`}
-        >
-          <Refrigerator className="w-4 h-4" />
-          <span>Fridge & Pantry ({fridgeItems.length})</span>
-          {activeTab === 'fridge' && (
-            <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#9c7526]" />
-          )}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('shopping')}
-          className={`px-5 py-3 flex items-center gap-2 relative transition-all whitespace-nowrap ${
-            activeTab === 'shopping' ? 'text-[#9c7526] font-semibold' : 'text-stone-500 hover:text-stone-900'
-          }`}
-        >
-          <ShoppingBag className="w-4 h-4" />
-          <span>Shopping List ({unboughtCount})</span>
-          {activeTab === 'shopping' && (
-            <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#9c7526]" />
-          )}
-        </button>
       </div>
 
       {/* ======================================================== */}

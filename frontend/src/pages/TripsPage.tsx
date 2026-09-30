@@ -359,31 +359,45 @@ export const TripsPage: React.FC = () => {
     <div className="space-y-8 pb-16">
       {/* Top Banner & Header */}
       {!currentTrip ? (
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#e5e0d4] pb-6">
-          <div>
-            <div className="flex items-center gap-2 text-stone-500 font-mono-tech text-xs uppercase tracking-wider mb-1">
-              <Compass className="w-4 h-4 text-[#9c7526]" />
-              <span>Shared Adventures</span>
-            </div>
-            <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium">
-              Travel Planner
-            </h1>
-          </div>
+        <div className="arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs relative">
+          <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
+          <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
+          <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
+          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
 
-          <button
-            onClick={() => {
-              setEditingTrip(null);
-              setIsTripModalOpen(true);
-            }}
-            className="px-4 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-2 transition-all shadow-xs"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Propose New Trip</span>
-          </button>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-stone-500 font-mono-tech text-xs uppercase tracking-wider mb-1">
+                <Compass className="w-4 h-4 text-[#9c7526]" />
+                <span className="text-[10px] font-mono-tech uppercase tracking-[0.2em] text-[#9c7526] font-semibold">
+                  [ 03 // SHARED ADVENTURES ]
+                </span>
+              </div>
+              <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium tracking-tight">
+                Travel Planner
+              </h1>
+            </div>
+
+            <button
+              onClick={() => {
+                setEditingTrip(null);
+                setIsTripModalOpen(true);
+              }}
+              className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-2 transition-all shadow-xs self-start md:self-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Propose New Trip</span>
+            </button>
+          </div>
         </div>
       ) : (
         /* Workspace Header when a trip is selected */
-        <div className="border-b border-[#e5e0d4] pb-6 space-y-4">
+        <div className="arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs relative space-y-4">
+          <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
+          <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
+          <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
+          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
+
           <button
             onClick={() => setSelectedTripId(null)}
             className="text-xs font-mono-tech uppercase tracking-wider text-stone-500 hover:text-stone-900 flex items-center gap-1.5 transition-colors"
@@ -527,15 +541,15 @@ export const TripsPage: React.FC = () => {
         /* 1. All Trips View */
         <div className="space-y-6">
           {/* Status Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#e5e0d4]/60 font-mono-tech text-xs uppercase tracking-wider">
+          <div className="arch-surface px-3 py-2 border border-[#e5e0d4] shadow-xs flex items-center gap-2 overflow-x-auto font-mono-tech text-xs uppercase tracking-wider">
             {['all', 'planning', 'idea', 'booked', 'completed'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setStatusFilter(tab)}
-                className={`px-3 py-1.5 rounded transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 border transition-all whitespace-nowrap ${
                   statusFilter === tab
-                    ? 'bg-[#181c24] text-[#fcd34d] font-semibold shadow-xs'
-                    : 'text-stone-500 hover:text-stone-900 hover:bg-stone-200/50'
+                    ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
+                    : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
                 }`}
               >
                 {tab === 'all' ? 'All Trips' : tab}
