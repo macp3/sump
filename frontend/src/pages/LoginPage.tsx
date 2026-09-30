@@ -28,7 +28,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f6f4ee]">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-transparent">
       <div className="max-w-sm w-full arch-surface p-8 border border-[#e5e0d4] shadow-md">
         {/* Title: Only SUMP */}
         <div className="text-center mb-8 pb-4 border-b border-[#e5e0d4]">

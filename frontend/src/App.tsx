@@ -9,6 +9,7 @@ import { CookingPage } from './pages/CookingPage';
 import { CreateCalendarEventModal } from './components/CreateCalendarEventModal';
 import { PasswordChangeModal } from './components/PasswordChangeModal';
 import { DuckGuide } from './components/DuckGuide';
+import { CollageBackground } from './components/CollageBackground';
 import { api } from './api/client';
 import { CalendarEvent } from './types';
 
@@ -40,7 +41,12 @@ const MainLayout: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage />;
+    return (
+      <>
+        <CollageBackground />
+        <LoginPage />
+      </>
+    );
   }
 
   const handleCreateCalendarEventSubmit = async (data: any) => {
@@ -55,7 +61,8 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f4ee] text-[#181c24] flex flex-col selection:bg-[#b58c38]/20 selection:text-[#735213]">
+    <div className="min-h-screen bg-transparent text-[#181c24] flex flex-col selection:bg-[#b58c38]/20 selection:text-[#735213]">
+      <CollageBackground />
       {/* Top Header */}
       <Navbar
         activeTab={activeTab}
