@@ -36,6 +36,11 @@ from app.schemas.cooking import (
     MealPlanUpdate,
     MealPlanResponse
 )
+from app.schemas.photo import (
+    PhotoCreate,
+    PhotoUpdate,
+    PhotoResponse
+)
 
 __all__ = [
     "UserResponse",
@@ -74,5 +79,8 @@ __all__ = [
     "ShoppingItemResponse",
     "MealPlanCreate",
     "MealPlanUpdate",
-    "MealPlanResponse"
+    "MealPlanResponse",
+    "PhotoCreate",
+    "PhotoUpdate",
+    "PhotoResponse"
 ]

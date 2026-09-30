@@ -5,6 +5,7 @@ from app.models.app_setting import AppSetting
 from app.models.miss_you import MissYouLog
 from app.models.trip import Trip, TripTransport, TripLodging, TripItineraryItem
 from app.models.cooking import FridgeItem, ShoppingItem, MealPlan
+from app.models.photo import Photo
 
 __all__ = [
     "User", 
@@ -18,5 +19,6 @@ __all__ = [
     "TripItineraryItem",
     "FridgeItem",
     "ShoppingItem",
-    "MealPlan"
+    "MealPlan",
+    "Photo"
 ]

@@ -38,6 +38,10 @@ const TOUR_STEPS: TourStep[] = [
     text: "In the Cooking tab, you can track fridge & pantry inventory, manage your shared grocery shopping list, and plan delicious meals together for the week!",
   },
   {
+    title: "Visual Memoir",
+    text: "In the Photos tab, you can add snapshots from your computer, choose which photos float in the background, or keep them stored in this memory album!",
+  },
+  {
     title: "QUACK!",
     text: "QUACK QUACK QUACK QUACK QUACK",
   },

@@ -6,14 +6,16 @@ from app.routers.clock import router as clock_router
 from app.routers.miss_you import router as miss_you_router
 from app.routers.trips import router as trips_router
 from app.routers.cooking import router as cooking_router
+from app.routers.photos import router as photos_router
 
 __all__ = [
     "auth_router", 
     "users_router", 
     "dates_router", 
     "calendar_router", 
-    "clock_router",
-    "miss_you_router",
-    "trips_router",
-    "cooking_router"
+    "clock_router", 
+    "miss_you_router", 
+    "trips_router", 
+    "cooking_router",
+    "photos_router"
 ]

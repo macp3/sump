@@ -11,7 +11,8 @@ from app.routers import (
     clock_router,
     miss_you_router,
     trips_router,
-    cooking_router
+    cooking_router,
+    photos_router
 )
 
 @asynccontextmanager
@@ -49,6 +50,7 @@ app.include_router(clock_router, prefix=settings.API_V1_STR)
 app.include_router(miss_you_router, prefix=settings.API_V1_STR)
 app.include_router(trips_router, prefix=settings.API_V1_STR)
 app.include_router(cooking_router, prefix=settings.API_V1_STR)
+app.include_router(photos_router, prefix=settings.API_V1_STR)
 
 @app.get("/health", tags=["Health"])
 def health_check():

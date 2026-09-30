@@ -12,7 +12,8 @@ import {
   TripItineraryItem,
   FridgeItem,
   ShoppingItem,
-  MealPlan
+  MealPlan,
+  PhotoItem
 } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000/api' : '/api');
@@ -28,7 +29,7 @@ class ApiClient {
   ): Promise<T> {
     const token = this.getToken();
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers as Record<string, string>),
     };
 
@@ -398,6 +399,37 @@ class ApiClient {
   async addMealIngredientsToShoppingList(mealId: number): Promise<ShoppingItem[]> {
     return this.request(`/cooking/meals/${mealId}/add-to-shopping-list`, {
       method: 'POST',
+    });
+  }
+
+  // --- Photo Memories & Atelier Gallery ---
+  async getPhotos(inBackground?: boolean): Promise<PhotoItem[]> {
+    const query = inBackground !== undefined ? `?in_background=${inBackground}` : '';
+    return this.request(`/photos${query}`);
+  }
+
+  async uploadPhoto(file: File, inBackground: boolean = true, caption?: string): Promise<PhotoItem> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('in_background', String(inBackground));
+    if (caption) formData.append('caption', caption);
+
+    return this.request('/photos/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async updatePhoto(id: number, data: { in_background?: boolean; caption?: string; rotation?: number; order_index?: number }): Promise<PhotoItem> {
+    return this.request(`/photos/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deletePhoto(id: number): Promise<{ message: string; id: number }> {
+    return this.request(`/photos/${id}`, {
+      method: 'DELETE',
     });
   }
 }

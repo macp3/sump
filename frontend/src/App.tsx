@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { Navbar } from './components/Navbar';
@@ -6,16 +6,44 @@ import { DashboardPage } from './pages/DashboardPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { TripsPage } from './pages/TripsPage';
 import { CookingPage } from './pages/CookingPage';
+import { PhotosPage } from './pages/PhotosPage';
 import { CreateCalendarEventModal } from './components/CreateCalendarEventModal';
 import { PasswordChangeModal } from './components/PasswordChangeModal';
 import { DuckGuide } from './components/DuckGuide';
 import { CollageBackground } from './components/CollageBackground';
 import { api } from './api/client';
-import { CalendarEvent } from './types';
+import { CalendarEvent, PhotoItem } from './types';
 
 const MainLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'trips' | 'cooking'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'trips' | 'cooking' | 'photos'>('dashboard');
+
+  // Photo memories state
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
+
+  const loadPhotos = async () => {
+    try {
+      const list = await api.getPhotos();
+      setPhotos(list);
+    } catch (err) {
+      console.error('Failed to load photos:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadPhotos();
+    }
+  }, [isAuthenticated]);
+
+  const handleTogglePhotoBackground = async (photo: PhotoItem) => {
+    try {
+      const updated = await api.updatePhoto(photo.id, { in_background: !photo.in_background });
+      setPhotos((prev) => prev.map((p) => (p.id === photo.id ? updated : p)));
+    } catch (err) {
+      console.error('Failed to toggle photo background:', err);
+    }
+  };
 
   // Modals state
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
@@ -43,7 +71,7 @@ const MainLayout: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <CollageBackground />
+        <CollageBackground photos={photos} />
         <LoginPage />
       </div>
     );
@@ -62,7 +90,10 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-transparent text-[#181c24] flex flex-col selection:bg-[#b58c38]/20 selection:text-[#735213] relative">
-      <CollageBackground />
+      <CollageBackground
+        photos={photos}
+        onMoveToTab={handleTogglePhotoBackground}
+      />
       {/* Top Header */}
       <Navbar
         activeTab={activeTab}
@@ -111,6 +142,14 @@ const MainLayout: React.FC = () => {
 
         {activeTab === 'cooking' && (
           <CookingPage />
+        )}
+
+        {activeTab === 'photos' && (
+          <PhotosPage
+            photos={photos}
+            onPhotosChange={loadPhotos}
+            onToggleBackground={handleTogglePhotoBackground}
+          />
         )}
       </main>
 

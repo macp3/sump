@@ -213,3 +213,19 @@ export interface MealPlan {
   updated_at: string;
   creator?: User;
 }
+
+export interface PhotoItem {
+  id: number;
+  filename: string;
+  file_url: string;
+  original_name?: string;
+  caption?: string;
+  in_background: boolean;
+  aspect_ratio: number;
+  rotation: number;
+  order_index: number;
+  creator_id?: number;
+  created_at: string;
+  updated_at?: string;
+  creator?: User;
+}

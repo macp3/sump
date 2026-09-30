@@ -8,6 +8,7 @@ from app.models.date_proposal import DateProposal
 from app.models.calendar_event import CalendarEvent
 from app.models.trip import Trip, TripTransport, TripLodging, TripItineraryItem
 from app.models.cooking import FridgeItem, ShoppingItem, MealPlan
+from app.models.photo import Photo
 
 def init_db():
     Base.metadata.create_all(bind=engine)
@@ -316,6 +317,50 @@ def init_db():
                 db.add_all(starter_meals)
                 db.commit()
                 print("[INFO] Seeded weekly meal plan proposals!")
+
+        # --- Seed Starter Photos Collection ---
+        if db.query(Photo).count() == 0:
+            first_user = db.query(User).first()
+            user_id = first_user.id if first_user else None
+            starter_photos_data = [
+                {"filename": "photo_01.jpg", "caption": "Shared Moments 01", "aspect": 0.75, "rot": -5},
+                {"filename": "photo_02.jpg", "caption": "Shared Moments 02", "aspect": 0.75, "rot": 4},
+                {"filename": "photo_03.jpg", "caption": "Shared Moments 03", "aspect": 0.56, "rot": 4},
+                {"filename": "photo_04.jpg", "caption": "Shared Moments 04", "aspect": 0.56, "rot": -6},
+                {"filename": "photo_05.jpg", "caption": "Shared Moments 05", "aspect": 0.75, "rot": -7},
+                {"filename": "photo_06.jpg", "caption": "Shared Moments 06", "aspect": 1.33, "rot": 5},
+                {"filename": "photo_07.jpg", "caption": "Shared Moments 07", "aspect": 0.45, "rot": 5},
+                {"filename": "photo_08.jpg", "caption": "Shared Moments 08", "aspect": 0.56, "rot": -4},
+                {"filename": "photo_09.jpg", "caption": "Shared Moments 09", "aspect": 0.75, "rot": -4},
+                {"filename": "photo_10.jpg", "caption": "Shared Moments 10", "aspect": 0.81, "rot": 6},
+                {"filename": "photo_11.jpg", "caption": "Shared Moments 11", "aspect": 0.75, "rot": -6},
+                {"filename": "photo_12.jpg", "caption": "Shared Moments 12", "aspect": 0.75, "rot": 7},
+                {"filename": "photo_13.jpg", "caption": "Shared Moments 13", "aspect": 0.75, "rot": -5},
+                {"filename": "photo_14.jpg", "caption": "Shared Moments 14", "aspect": 0.75, "rot": 3},
+                {"filename": "photo_15.jpg", "caption": "Shared Moments 15", "aspect": 0.75, "rot": -3},
+                {"filename": "photo_16.jpg", "caption": "Shared Moments 16", "aspect": 0.75, "rot": 4},
+                {"filename": "photo_17.jpg", "caption": "Shared Moments 17", "aspect": 1.33, "rot": 3},
+                {"filename": "photo_18.jpg", "caption": "Shared Moments 18", "aspect": 1.00, "rot": -5},
+                {"filename": "photo_19.jpg", "caption": "Shared Moments 19", "aspect": 1.33, "rot": -2},
+                {"filename": "photo_20.jpg", "caption": "Shared Moments 20", "aspect": 0.75, "rot": 4},
+            ]
+            starter_photos = [
+                Photo(
+                    filename=p["filename"],
+                    file_url=f"/collage/{p['filename']}",
+                    original_name=p["filename"],
+                    caption=p["caption"],
+                    in_background=True,
+                    aspect_ratio=p["aspect"],
+                    rotation=p["rot"],
+                    order_index=idx,
+                    creator_id=user_id
+                )
+                for idx, p in enumerate(starter_photos_data)
+            ]
+            db.add_all(starter_photos)
+            db.commit()
+            print("[INFO] Seeded starter photo collection with 20 memories!")
     finally:
         db.close()
 
