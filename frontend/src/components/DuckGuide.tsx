@@ -56,7 +56,375 @@ const SPONTANEOUS_MESSAGES = [
 
 type DuckDirection = 'side' | 'up' | 'down';
 
-export const DuckGuide: React.FC = () => {
+interface DuckGuideProps {
+  activeTab?: 'dashboard' | 'calendar' | 'trips' | 'cooking' | 'photos';
+}
+
+// 1. Chef Costume for Cooking Tab (Toque Blanche, Red Scarf, Wooden Spoon)
+const ChefCostume: React.FC<{ direction: DuckDirection }> = ({ direction }) => {
+  if (direction === 'side') {
+    return (
+      <div className="absolute inset-0 pointer-events-none select-none">
+        {/* Chef Hat (Toque) */}
+        <svg
+          className="absolute -top-[16%] left-[64%] w-[36%] h-[40%] drop-shadow-md"
+          viewBox="0 0 100 110"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Hat band */}
+          <path
+            d="M20 85 L82 82 L84 100 L22 103 Z"
+            fill="#f4f1ea"
+            stroke="#d5cfc0"
+            strokeWidth="2.5"
+          />
+          {/* Hat pleats and cloud puff */}
+          <path
+            d="M18 85 C10 65 12 40 30 25 C45 12 65 10 78 20 C92 30 96 55 84 82 C72 84 32 86 18 85 Z"
+            fill="#ffffff"
+            stroke="#d8d2c4"
+            strokeWidth="2.5"
+          />
+          <path d="M38 28 C34 50 35 75 36 84" stroke="#e8e2d5" strokeWidth="2" strokeLinecap="round" />
+          <path d="M54 18 C52 45 53 72 54 83" stroke="#e8e2d5" strokeWidth="2" strokeLinecap="round" />
+          <path d="M70 24 C68 48 68 70 69 82" stroke="#e8e2d5" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+
+        {/* Red French Chef Neckerchief */}
+        <svg
+          className="absolute top-[31%] left-[69%] w-[22%] h-[20%] drop-shadow-xs"
+          viewBox="0 0 60 50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M10 12 C20 8 40 8 50 14 C46 26 32 38 28 42 C24 36 14 24 10 12 Z"
+            fill="#c92a2a"
+            stroke="#a61e1e"
+            strokeWidth="1.5"
+          />
+          <circle cx="28" cy="20" r="5" fill="#e03131" stroke="#a61e1e" strokeWidth="1" />
+          <path d="M28 24 L24 38 M30 24 L34 36" stroke="#a61e1e" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+
+        {/* Mini Wooden Spoon tucked in wing */}
+        <svg
+          className="absolute top-[38%] left-[28%] w-[32%] h-[32%] -rotate-25 drop-shadow-xs"
+          viewBox="0 0 80 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <ellipse cx="20" cy="22" rx="14" ry="18" transform="rotate(-30 20 22)" fill="#d4a373" stroke="#bc8a5f" strokeWidth="2" />
+          <path d="M28 32 L68 72" stroke="#b07d4f" strokeWidth="4.5" strokeLinecap="round" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (direction === 'down') {
+    return (
+      <div className="absolute inset-0 pointer-events-none select-none">
+        {/* Chef Hat Frontal */}
+        <svg
+          className="absolute -top-[18%] left-[34%] w-[32%] h-[40%] drop-shadow-md"
+          viewBox="0 0 100 110"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect x="22" y="80" width="56" height="18" rx="2" fill="#f4f1ea" stroke="#d5cfc0" strokeWidth="2.5" />
+          <path
+            d="M20 80 C8 55 14 25 32 15 C42 10 58 10 68 15 C86 25 92 55 80 80 Z"
+            fill="#ffffff"
+            stroke="#d8d2c4"
+            strokeWidth="2.5"
+          />
+          <path d="M36 22 C34 45 35 68 36 80" stroke="#e8e2d5" strokeWidth="2" strokeLinecap="round" />
+          <path d="M50 16 C50 42 50 68 50 80" stroke="#e8e2d5" strokeWidth="2" strokeLinecap="round" />
+          <path d="M64 22 C66 45 65 68 64 80" stroke="#e8e2d5" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+
+        {/* Red Chef Neckerchief Frontal */}
+        <svg
+          className="absolute top-[32%] left-[41%] w-[20%] h-[18%] drop-shadow-xs"
+          viewBox="0 0 60 50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M8 10 C20 18 40 18 52 10 C46 28 35 38 30 42 C25 38 14 28 8 10 Z"
+            fill="#c92a2a"
+            stroke="#a61e1e"
+            strokeWidth="1.5"
+          />
+          <circle cx="30" cy="18" r="4.5" fill="#e03131" stroke="#a61e1e" strokeWidth="1" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Back View
+  return (
+    <div className="absolute inset-0 pointer-events-none select-none">
+      <svg
+        className="absolute -top-[10%] left-[34%] w-[32%] h-[38%] drop-shadow-md"
+        viewBox="0 0 100 110"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect x="24" y="80" width="52" height="18" rx="2" fill="#eae5d8" stroke="#ccc5b4" strokeWidth="2.5" />
+        <path
+          d="M22 80 C10 58 16 28 34 18 C44 12 56 12 66 18 C84 28 90 58 78 80 Z"
+          fill="#fbf9f5"
+          stroke="#d8d2c4"
+          strokeWidth="2.5"
+        />
+      </svg>
+    </div>
+  );
+};
+
+// 2. Traveler Costume for Trips Tab (Safari Fedora, Leather Crossbody Satchel / Compass)
+const TravelerCostume: React.FC<{ direction: DuckDirection }> = ({ direction }) => {
+  if (direction === 'side') {
+    return (
+      <div className="absolute inset-0 pointer-events-none select-none">
+        {/* Safari Pith Helmet / Explorer Fedora */}
+        <svg
+          className="absolute -top-[1%] left-[58%] w-[42%] h-[30%] drop-shadow-md"
+          viewBox="0 0 120 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M32 46 C30 24 45 10 65 10 C85 10 98 24 96 46 Z"
+            fill="#d8c59a"
+            stroke="#b59f71"
+            strokeWidth="2.5"
+          />
+          <path
+            d="M31 46 C50 44 80 44 97 46 L98 52 C80 50 50 50 30 52 Z"
+            fill="#5c3818"
+            stroke="#3d240f"
+            strokeWidth="1"
+          />
+          <rect x="62" y="45" width="8" height="6" fill="#fcd34d" stroke="#b45309" strokeWidth="1" rx="1" />
+          <ellipse
+            cx="64"
+            cy="53"
+            rx="54"
+            ry="14"
+            fill="#e2d4af"
+            stroke="#baa373"
+            strokeWidth="2.5"
+          />
+        </svg>
+
+        {/* Leather Crossbody Satchel */}
+        <svg
+          className="absolute top-[38%] left-[26%] w-[38%] h-[36%] drop-shadow-sm"
+          viewBox="0 0 90 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M78 8 C65 24 45 42 28 54"
+            stroke="#633918"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+          <rect
+            x="14"
+            y="42"
+            width="28"
+            height="24"
+            rx="4"
+            fill="#854d0e"
+            stroke="#54300a"
+            strokeWidth="2"
+          />
+          <path d="M14 42 C22 52 34 52 42 42 Z" fill="#6d3e0b" stroke="#54300a" strokeWidth="1.5" />
+          <circle cx="28" cy="49" r="2.5" fill="#fcd34d" stroke="#b45309" strokeWidth="0.8" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (direction === 'down') {
+    return (
+      <div className="absolute inset-0 pointer-events-none select-none">
+        {/* Safari Hat Frontal */}
+        <svg
+          className="absolute -top-[5%] left-[28%] w-[44%] h-[32%] drop-shadow-md"
+          viewBox="0 0 120 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M36 44 C34 22 46 8 60 8 C74 8 86 22 84 44 Z"
+            fill="#d8c59a"
+            stroke="#b59f71"
+            strokeWidth="2.5"
+          />
+          <path d="M34 44 C50 42 70 42 86 44 L87 50 C70 48 50 48 33 50 Z" fill="#5c3818" />
+          <rect x="56" y="44" width="8" height="6" fill="#fcd34d" rx="1" />
+          <ellipse cx="60" cy="51" rx="56" ry="13" fill="#e2d4af" stroke="#baa373" strokeWidth="2.5" />
+        </svg>
+
+        {/* Crossbody Leather Strap with Compass Frontal */}
+        <svg
+          className="absolute top-[34%] left-[34%] w-[32%] h-[34%] drop-shadow-xs"
+          viewBox="0 0 80 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M20 10 L64 62" stroke="#633918" strokeWidth="4.5" strokeLinecap="round" />
+          <circle cx="44" cy="38" r="9" fill="#fef3c7" stroke="#b45309" strokeWidth="2" />
+          <circle cx="44" cy="38" r="7" fill="#fffbeb" stroke="#d97706" strokeWidth="0.8" />
+          <path d="M44 32 L46 38 L44 44 L42 38 Z" fill="#b91c1c" />
+          <circle cx="44" cy="38" r="1.5" fill="#451a03" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Back View
+  return (
+    <div className="absolute inset-0 pointer-events-none select-none">
+      <svg
+        className="absolute top-[2%] left-[28%] w-[44%] h-[32%] drop-shadow-md"
+        viewBox="0 0 120 80"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M36 44 C34 22 46 8 60 8 C74 8 86 22 84 44 Z" fill="#c7b386" stroke="#9e885a" strokeWidth="2" />
+        <ellipse cx="60" cy="51" rx="56" ry="13" fill="#d2c39d" stroke="#a38e60" strokeWidth="2" />
+      </svg>
+      <svg
+        className="absolute top-[40%] left-[32%] w-[36%] h-[34%] drop-shadow-md"
+        viewBox="0 0 80 80"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect x="20" y="24" width="40" height="36" rx="6" fill="#78350f" stroke="#451a03" strokeWidth="2" />
+        <rect x="16" y="14" width="48" height="14" rx="7" fill="#365314" stroke="#1a2e05" strokeWidth="1.5" />
+      </svg>
+    </div>
+  );
+};
+
+// 3. Photographer Costume for Photos Tab (Black Wool Beret, Rangefinder Camera on strap)
+const PhotographerCostume: React.FC<{ direction: DuckDirection }> = ({ direction }) => {
+  if (direction === 'side') {
+    return (
+      <div className="absolute inset-0 pointer-events-none select-none">
+        {/* Parisian Atelier Wool Beret */}
+        <svg
+          className="absolute -top-[3%] left-[60%] w-[38%] h-[26%] -rotate-6 drop-shadow-md"
+          viewBox="0 0 100 70"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M52 14 L50 6" stroke="#18181b" strokeWidth="2.5" strokeLinecap="round" />
+          <path
+            d="M14 42 C12 28 32 14 54 14 C78 14 94 26 92 40 C88 52 70 54 50 52 C30 50 16 48 14 42 Z"
+            fill="#27272a"
+            stroke="#09090b"
+            strokeWidth="2"
+          />
+          <path d="M26 47 C40 50 62 49 76 45" stroke="#3f3f46" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+
+        {/* Vintage Rangefinder Camera with Leather Strap */}
+        <svg
+          className="absolute top-[34%] left-[58%] w-[34%] h-[32%] drop-shadow-md"
+          viewBox="0 0 80 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M36 6 C42 16 46 26 44 38"
+            stroke="#78350f"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          <rect x="22" y="38" width="34" height="24" rx="3" fill="#18181b" stroke="#09090b" strokeWidth="1.5" />
+          <rect x="22" y="35" width="34" height="7" rx="1.5" fill="#e4e4e7" stroke="#71717a" strokeWidth="1" />
+          <rect x="44" y="37" width="5" height="3" fill="#38bdf8" />
+          <circle cx="28" cy="40" r="1.8" fill="#dc2626" />
+          <circle cx="38" cy="50" r="8" fill="#27272a" stroke="#d4d4d8" strokeWidth="2" />
+          <circle cx="38" cy="50" r="4.5" fill="#0284c7" />
+          <circle cx="36" cy="48" r="1.5" fill="#ffffff" opacity="0.8" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (direction === 'down') {
+    return (
+      <div className="absolute inset-0 pointer-events-none select-none">
+        {/* Beret Frontal tilted */}
+        <svg
+          className="absolute -top-[6%] left-[30%] w-[40%] h-[28%] rotate-4 drop-shadow-md"
+          viewBox="0 0 100 70"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M50 14 L50 6" stroke="#18181b" strokeWidth="2.5" strokeLinecap="round" />
+          <path
+            d="M12 40 C10 24 30 14 52 14 C76 14 94 24 90 40 C86 50 68 52 50 50 C28 48 14 46 12 40 Z"
+            fill="#27272a"
+            stroke="#09090b"
+            strokeWidth="2"
+          />
+          <path d="M24 45 C40 48 64 47 78 43" stroke="#3f3f46" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+
+        {/* Camera hanging around neck frontal */}
+        <svg
+          className="absolute top-[34%] left-[33%] w-[34%] h-[34%] drop-shadow-md"
+          viewBox="0 0 80 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M22 6 L32 36 M58 6 L48 36" stroke="#78350f" strokeWidth="2.5" strokeLinecap="round" />
+          <rect x="22" y="36" width="36" height="24" rx="3" fill="#18181b" stroke="#09090b" strokeWidth="1.5" />
+          <rect x="22" y="33" width="36" height="7" rx="1.5" fill="#e4e4e7" stroke="#71717a" strokeWidth="1" />
+          <rect x="26" y="30.5" width="4" height="3" fill="#a1a1aa" rx="0.5" />
+          <circle cx="28" cy="42" r="1.8" fill="#dc2626" />
+          <circle cx="40" cy="48" r="8.5" fill="#27272a" stroke="#d4d4d8" strokeWidth="2" />
+          <circle cx="40" cy="48" r="5" fill="#0284c7" />
+          <circle cx="38" cy="46" r="1.5" fill="#ffffff" opacity="0.8" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Back View
+  return (
+    <div className="absolute inset-0 pointer-events-none select-none">
+      <svg
+        className="absolute top-[0%] left-[30%] w-[40%] h-[28%] drop-shadow-md"
+        viewBox="0 0 100 70"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M50 14 L50 6" stroke="#18181b" strokeWidth="2" />
+        <ellipse cx="50" cy="38" rx="42" ry="18" fill="#27272a" stroke="#09090b" strokeWidth="2" />
+      </svg>
+      <svg
+        className="absolute top-[28%] left-[38%] w-[24%] h-[20%]"
+        viewBox="0 0 60 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12 10 C24 16 36 16 48 10" stroke="#78350f" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+};
+
+export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' }) => {
   const [tourOpen, setTourOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [caughtOpen, setCaughtOpen] = useState(false);
@@ -74,6 +442,30 @@ export const DuckGuide: React.FC = () => {
   const isMovingRef = useRef(false);
   const lastFleeTimeRef = useRef(0);
   const lastMousePosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+
+  // Tab switch reaction quack
+  const prevTabRef = useRef(activeTab);
+  useEffect(() => {
+    if (prevTabRef.current !== activeTab) {
+      prevTabRef.current = activeTab;
+      if (activeTab === 'cooking') {
+        setQuackBubble('Chef Quack!');
+        playQuackSound(1.15);
+        const t = setTimeout(() => setQuackBubble(null), 2500);
+        return () => clearTimeout(t);
+      } else if (activeTab === 'trips') {
+        setQuackBubble('Explorer Quack!');
+        playQuackSound(1.1);
+        const t = setTimeout(() => setQuackBubble(null), 2500);
+        return () => clearTimeout(t);
+      } else if (activeTab === 'photos') {
+        setQuackBubble('Say Cheese! Quack!');
+        playQuackSound(1.2);
+        const t = setTimeout(() => setQuackBubble(null), 2500);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [activeTab]);
 
   // Synthesized realistic duck "Quack" sound via Web Audio API
   const playQuackSound = (pitchMod = 1) => {
@@ -526,17 +918,26 @@ export const DuckGuide: React.FC = () => {
 
           {/* Waddling Hop Wrapper - separates vertical bobbing from directional scaleX flip */}
           <div className={isWaddling ? 'duck-walk-hop-anim' : ''}>
-            {/* Stepping Duck Sprite Frame */}
-            <img
-              src={getCurrentDuckImage()}
-              alt="Adult Duck"
+            <div
               style={{
                 transform: direction === 'side' && facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
                 transformOrigin: 'center bottom',
               }}
-              className="w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-sm pointer-events-none select-none"
-              draggable={false}
-            />
+              className="relative w-24 h-24 sm:w-28 sm:h-28"
+            >
+              {/* Stepping Duck Sprite Frame */}
+              <img
+                src={getCurrentDuckImage()}
+                alt="Adult Duck"
+                className="w-full h-full object-contain filter drop-shadow-sm pointer-events-none select-none"
+                draggable={false}
+              />
+
+              {/* Dynamic Costume Accessories based on current active tab */}
+              {activeTab === 'cooking' && <ChefCostume direction={direction} />}
+              {activeTab === 'trips' && <TravelerCostume direction={direction} />}
+              {activeTab === 'photos' && <PhotographerCostume direction={direction} />}
+            </div>
           </div>
         </div>
       </div>

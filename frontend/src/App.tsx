@@ -156,7 +156,7 @@ const MainLayout: React.FC = () => {
       </main>
 
       {/* Persistent Atelier Companion Duck Guide */}
-      <DuckGuide />
+      <DuckGuide activeTab={activeTab} />
 
       {/* Modals */}
       <CreateCalendarEventModal
