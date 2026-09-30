@@ -442,6 +442,10 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
   const isMovingRef = useRef(false);
   const lastFleeTimeRef = useRef(0);
   const lastMousePosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const lastMouseMoveTimeRef = useRef(Date.now());
+  const [moveDuration, setMoveDuration] = useState(0.4);
+  const anticTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const runNextAnticRef = useRef<() => void>(() => {});
 
   // Touch and pointer dragging state for mobile & desktop
   const [isDraggingDuck, setIsDraggingDuck] = useState(false);
@@ -625,10 +629,11 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     }
   }, []);
 
-  // Track user mouse position
+  // Track user mouse position and activity timestamp
   useEffect(() => {
     const trackMouse = (e: MouseEvent) => {
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
+      lastMouseMoveTimeRef.current = Date.now();
     };
     window.addEventListener('mousemove', trackMouse);
     return () => window.removeEventListener('mousemove', trackMouse);
@@ -656,56 +661,23 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     }
   };
 
-  // Spontaneous behavior: Duck runs up to the user on her own occasionally
-  useEffect(() => {
-    const runInterval = setInterval(() => {
-      if (tourOpen || caughtOpen || isMovingRef.current || approachMessage || isDraggingRef.current) return;
-
-      if (Math.random() > 0.35) {
-        const mouse = lastMousePosRef.current;
-        isMovingRef.current = true;
-        setIsWaddling(true);
-
-        const sideOffset = Math.random() > 0.5 ? 90 : -90;
-        const targetX = Math.max(30, Math.min(mouse.x + sideOffset, window.innerWidth - 100));
-        const targetY = Math.max(30, Math.min(mouse.y + (Math.random() * 50 - 25), window.innerHeight - 100));
-
-        updateDirection(pos.x, pos.y, targetX, targetY);
-        setPos({ x: targetX, y: targetY });
-
-        setQuackBubble("QUACK QUACK!");
-        playQuackSound(1.1);
-
-        setTimeout(() => {
-          setIsWaddling(false);
-          isMovingRef.current = false;
-          setQuackBubble(null);
-          // Return to normal default side position when stopped
-          setDirection('side');
-
-          const randomMsg = SPONTANEOUS_MESSAGES[Math.floor(Math.random() * SPONTANEOUS_MESSAGES.length)];
-          setApproachMessage(randomMsg);
-          playQuackSound(1.15);
-
-          setTimeout(() => {
-            setApproachMessage(null);
-          }, 3500);
-        }, 450);
-      }
-    }, 15000 + Math.random() * 8000);
-
-    return () => clearInterval(runInterval);
-  }, [pos, tourOpen, caughtOpen, approachMessage]);
-
-  // Fleeing mouse cursor logic (desktop only, disabled on touch devices to allow natural mobile interaction)
+  // Fleeing mouse cursor logic (desktop only, disabled during antics and touch drag)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       // Do not flee on touch-only devices to avoid phantom touch flee
       if (window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
-      if (tourOpen || caughtOpen || isMovingRef.current || isDraggingRef.current) return;
+      if (
+        tourOpen ||
+        caughtOpen ||
+        isMovingRef.current ||
+        isDraggingRef.current ||
+        isBusyAnticRef.current
+      ) {
+        return;
+      }
 
       const now = Date.now();
-      if (now - lastFleeTimeRef.current < 250) return;
+      if (now - lastFleeTimeRef.current < 280) return;
 
       const duckEl = duckRef.current;
       if (!duckEl) return;
@@ -718,7 +690,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       const dy = e.clientY - duckCenterY;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < 115) {
+      if (distance < 80) {
         if (approachMessage) {
           setApproachMessage(null);
         }
@@ -728,7 +700,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         setIsWaddling(true);
 
         const angle = Math.atan2(dy, dx);
-        const jumpDistance = 150 + Math.random() * 130;
+        const jumpDistance = 130 + Math.random() * 110;
         const jitter = (Math.random() - 0.5) * 0.7;
         const fleeAngle = angle + Math.PI + jitter;
 
@@ -744,6 +716,10 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         if (targetY < padding) targetY = padding + Math.random() * 90;
         if (targetY > maxY) targetY = maxY - Math.random() * 90;
 
+        const fleeDist = Math.hypot(targetX - pos.x, targetY - pos.y);
+        const fleeDuration = Math.max(0.32, Math.min(0.75, fleeDist / 270));
+        setMoveDuration(fleeDuration);
+
         updateDirection(pos.x, pos.y, targetX, targetY);
         setPos({ x: targetX, y: targetY });
 
@@ -754,9 +730,8 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         setTimeout(() => {
           setIsWaddling(false);
           isMovingRef.current = false;
-          // Return to normal default side position when movement completes
           setDirection('side');
-        }, 450);
+        }, fleeDuration * 1000);
       }
     };
 
@@ -764,47 +739,66 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [pos, tourOpen, caughtOpen, approachMessage]);
 
-  // Mischievous antics: occasionally pecks page cards/headings, window edges, or shoves background photos
+  // Autonomous mischievous antics engine
   useEffect(() => {
-    const anticInterval = setInterval(() => {
+    const runNextAntic = () => {
       if (
         tourOpen ||
         caughtOpen ||
         isMovingRef.current ||
         isDraggingRef.current ||
         isBusyAnticRef.current ||
-        approachMessage ||
         document.hidden
       ) {
+        // Retry soon if temporarily busy
+        anticTimerRef.current = setTimeout(runNextAntic, 3500);
         return;
       }
 
-      // Pick antic category: photo = peck photo & move slot, card = nibble card/text, edge = peck window edge
-      const types = ['photo', 'card', 'edge'] as const;
-      const chosenType = types[Math.floor(Math.random() * types.length)];
+      // Check available floating background photos
+      const photoEls = Array.from(
+        document.querySelectorAll<HTMLElement>('.scattered-photo-item[data-photo-id]')
+      ).filter((el) => {
+        const rect = el.getBoundingClientRect();
+        return rect.width > 20 && rect.top > 0 && rect.bottom < window.innerHeight && rect.left > 0 && rect.right < window.innerWidth;
+      });
 
-      if (chosenType === 'photo') {
-        const photoEls = Array.from(
-          document.querySelectorAll<HTMLElement>('.scattered-photo-item[data-photo-id]')
-        ).filter((el) => {
-          const rect = el.getBoundingClientRect();
-          return rect.width > 0 && rect.top > 0 && rect.bottom < window.innerHeight;
-        });
+      // Assemble candidates pool
+      const anticPool: Array<'card' | 'photo' | 'edge' | 'nip_cursor'> = ['card', 'card', 'edge'];
+      if (photoEls.length > 0) {
+        anticPool.push('photo', 'photo');
+      }
 
-        if (photoEls.length === 0) return;
+      // Add sneaky cursor nip if user actively moved mouse within 8 seconds and on desktop
+      const recentMouseMove = Date.now() - lastMouseMoveTimeRef.current < 8000;
+      const isHoverCapable = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+      if (recentMouseMove && isHoverCapable) {
+        anticPool.push('nip_cursor');
+      }
+
+      const chosen = anticPool[Math.floor(Math.random() * anticPool.length)];
+
+      if (chosen === 'photo' && photoEls.length > 0) {
         const targetEl = photoEls[Math.floor(Math.random() * photoEls.length)];
         const photoId = Number(targetEl.dataset.photoId);
         const currentSlot = Number(targetEl.dataset.slotIdx || 0);
-        if (!photoId) return;
+        if (!photoId) {
+          anticTimerRef.current = setTimeout(runNextAntic, 4000);
+          return;
+        }
+
+        const rect = targetEl.getBoundingClientRect();
+        const approachLeft = Math.random() > 0.5;
+        const approachX = approachLeft
+          ? Math.max(10, rect.left - 60)
+          : Math.min(window.innerWidth - 90, rect.right - 20);
+        const approachY = Math.max(60, Math.min(rect.top + 20, window.innerHeight - 95));
+
+        const dist = Math.hypot(approachX - pos.x, approachY - pos.y);
+        const walkDuration = Math.max(0.45, Math.min(2.0, dist / 210));
+        setMoveDuration(walkDuration);
 
         isBusyAnticRef.current = true;
-        const rect = targetEl.getBoundingClientRect();
-        const approachX = Math.max(
-          10,
-          Math.min(rect.left + (rect.width > 80 ? 30 : 5), window.innerWidth - 90)
-        );
-        const approachY = Math.max(10, Math.min(rect.top + 20, window.innerHeight - 90));
-
         isMovingRef.current = true;
         setIsWaddling(true);
         updateDirection(pos.x, pos.y, approachX, approachY);
@@ -814,15 +808,19 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
           if (!isBusyAnticRef.current) return;
           setIsWaddling(false);
           isMovingRef.current = false;
-          setFacingLeft(pos.x > rect.left + rect.width / 2);
+          setFacingLeft(!approachLeft);
+          setDirection('side');
 
           setIsPecking(true);
           targetEl.classList.add('duck-nibbled-item');
 
-          playPeckSound(1.1);
-          setTimeout(() => playPeckSound(1.15), 180);
-          setTimeout(() => playPeckSound(1.05), 360);
-          triggerNibbleCrumbs(approachX + (pos.x > rect.left + rect.width / 2 ? 5 : 65), approachY + 30);
+          playPeckSound(1.05);
+          setTimeout(() => playPeckSound(1.15), 160);
+          setTimeout(() => playPeckSound(1.1), 320);
+
+          const crumbX = approachX + (approachLeft ? 70 : 10);
+          const crumbY = approachY + 35;
+          triggerNibbleCrumbs(crumbX, crumbY);
 
           setTimeout(() => {
             if (!isBusyAnticRef.current) return;
@@ -848,39 +846,52 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
             setTimeout(() => {
               if (!isBusyAnticRef.current) return;
               setQuackBubble('QUACK!');
-              setTimeout(() => setQuackBubble(null), 800);
-              isBusyAnticRef.current = false;
+              setTimeout(() => {
+                if (!isBusyAnticRef.current) return;
+                setQuackBubble(null);
+                isBusyAnticRef.current = false;
+                anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+              }, 700);
             }, 600);
-          }, 850);
-        }, 500);
-      } else if (chosenType === 'card') {
+          }, 750);
+        }, walkDuration * 1000);
+
+      } else if (chosen === 'card') {
         const candidates = Array.from(
           document.querySelectorAll<HTMLElement>(
-            '.arch-surface, .arch-card, h1, h3, .love-counter-card'
+            '.arch-surface, .arch-card, .love-counter-card, h1, h2, h3, button:not([disabled])'
           )
         ).filter((el) => {
           const rect = el.getBoundingClientRect();
           return (
             rect.width > 60 &&
-            rect.height > 30 &&
-            rect.top > 70 &&
-            rect.bottom < window.innerHeight - 80 &&
+            rect.height > 25 &&
+            rect.top >= 60 &&
+            rect.bottom <= window.innerHeight - 50 &&
             rect.left >= 0 &&
             rect.right <= window.innerWidth
           );
         });
 
-        if (candidates.length === 0) return;
+        if (candidates.length === 0) {
+          anticTimerRef.current = setTimeout(runNextAntic, 3000);
+          return;
+        }
+
         const targetEl = candidates[Math.floor(Math.random() * candidates.length)];
         const rect = targetEl.getBoundingClientRect();
 
-        isBusyAnticRef.current = true;
-        const approachRight = Math.random() > 0.5;
-        const approachX = approachRight
-          ? Math.min(window.innerWidth - 85, rect.right - 25)
-          : Math.max(10, rect.left - 45);
-        const approachY = Math.max(60, Math.min(rect.top + 10, window.innerHeight - 90));
+        const approachLeft = Math.random() > 0.5;
+        const approachX = approachLeft
+          ? Math.max(10, rect.left - 65)
+          : Math.min(window.innerWidth - 90, rect.right - 15);
+        const approachY = Math.max(60, Math.min(rect.top + Math.min(rect.height * 0.35, 45), window.innerHeight - 95));
 
+        const dist = Math.hypot(approachX - pos.x, approachY - pos.y);
+        const walkDuration = Math.max(0.45, Math.min(2.0, dist / 210));
+        setMoveDuration(walkDuration);
+
+        isBusyAnticRef.current = true;
         isMovingRef.current = true;
         setIsWaddling(true);
         updateDirection(pos.x, pos.y, approachX, approachY);
@@ -890,18 +901,21 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
           if (!isBusyAnticRef.current) return;
           setIsWaddling(false);
           isMovingRef.current = false;
-          setFacingLeft(approachRight);
+          setFacingLeft(!approachLeft);
+          setDirection('side');
 
           setIsPecking(true);
           targetEl.classList.add('duck-nibbled-item');
 
           playPeckSound(0.95);
-          setTimeout(() => playPeckSound(1.05), 160);
-          setTimeout(() => playPeckSound(1.0), 320);
-          setTimeout(() => playPeckSound(1.1), 480);
+          setTimeout(() => playPeckSound(1.05), 150);
+          setTimeout(() => playPeckSound(1.0), 300);
+          setTimeout(() => playPeckSound(1.15), 450);
 
-          triggerNibbleCrumbs(approachX + (approachRight ? 10 : 60), approachY + 30);
-          setQuackBubble('*nom nom*');
+          const crumbX = approachX + (approachLeft ? 70 : 10);
+          const crumbY = approachY + 35;
+          triggerNibbleCrumbs(crumbX, crumbY);
+          setQuackBubble('*nom nom!*');
 
           setTimeout(() => {
             if (!isBusyAnticRef.current) return;
@@ -914,23 +928,84 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               if (!isBusyAnticRef.current) return;
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-            }, 800);
-          }, 900);
-        }, 500);
+              anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+            }, 700);
+          }, 850);
+        }, walkDuration * 1000);
+
+      } else if (chosen === 'nip_cursor') {
+        const mouse = lastMousePosRef.current;
+        const sneakLeft = mouse.x > pos.x;
+        const approachX = sneakLeft
+          ? Math.max(10, mouse.x - 70)
+          : Math.min(window.innerWidth - 90, mouse.x + 10);
+        const approachY = Math.max(60, Math.min(mouse.y - 25, window.innerHeight - 95));
+
+        const dist = Math.hypot(approachX - pos.x, approachY - pos.y);
+        const walkDuration = Math.max(0.4, Math.min(1.8, dist / 220));
+        setMoveDuration(walkDuration);
+
+        isBusyAnticRef.current = true;
+        isMovingRef.current = true;
+        setIsWaddling(true);
+        updateDirection(pos.x, pos.y, approachX, approachY);
+        setPos({ x: approachX, y: approachY });
+
+        setTimeout(() => {
+          if (!isBusyAnticRef.current) return;
+          setIsWaddling(false);
+          isMovingRef.current = false;
+          setFacingLeft(!sneakLeft);
+          setDirection('side');
+
+          setIsPecking(true);
+          playPeckSound(1.15);
+          setTimeout(() => playPeckSound(1.25), 150);
+
+          const crumbX = approachX + (sneakLeft ? 70 : 10);
+          const crumbY = approachY + 35;
+          triggerNibbleCrumbs(crumbX, crumbY);
+          setQuackBubble('*nip!*');
+
+          setTimeout(() => {
+            if (!isBusyAnticRef.current) return;
+            setIsPecking(false);
+
+            // Surprised little hop back
+            const hopX = sneakLeft
+              ? Math.max(10, approachX - 65)
+              : Math.min(window.innerWidth - 90, approachX + 65);
+            setMoveDuration(0.3);
+            setIsWaddling(true);
+            setPos({ x: hopX, y: approachY });
+
+            setQuackBubble('QUACK!');
+            playQuackSound(1.25);
+
+            setTimeout(() => {
+              setIsWaddling(false);
+              setQuackBubble(null);
+              isBusyAnticRef.current = false;
+              anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+            }, 600);
+          }, 450);
+        }, walkDuration * 1000);
+
       } else {
+        // Window edge pecking
         isBusyAnticRef.current = true;
         const edges = ['left', 'right', 'bottom', 'top'] as const;
         const edge = edges[Math.floor(Math.random() * edges.length)];
 
-        let edgeX = 10;
+        let edgeX = 8;
         let edgeY = 150;
 
         if (edge === 'left') {
-          edgeX = 8;
-          edgeY = 100 + Math.random() * (window.innerHeight - 200);
+          edgeX = 6;
+          edgeY = 100 + Math.random() * (window.innerHeight - 220);
         } else if (edge === 'right') {
           edgeX = window.innerWidth - 85;
-          edgeY = 100 + Math.random() * (window.innerHeight - 200);
+          edgeY = 100 + Math.random() * (window.innerHeight - 220);
         } else if (edge === 'bottom') {
           edgeX = 50 + Math.random() * (window.innerWidth - 150);
           edgeY = window.innerHeight - 85;
@@ -938,6 +1013,10 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
           edgeX = 50 + Math.random() * (window.innerWidth - 150);
           edgeY = 70;
         }
+
+        const dist = Math.hypot(edgeX - pos.x, edgeY - pos.y);
+        const walkDuration = Math.max(0.45, Math.min(2.0, dist / 210));
+        setMoveDuration(walkDuration);
 
         isMovingRef.current = true;
         setIsWaddling(true);
@@ -950,17 +1029,18 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
           isMovingRef.current = false;
           if (edge === 'left') setFacingLeft(true);
           if (edge === 'right') setFacingLeft(false);
+          setDirection('side');
 
           setIsPecking(true);
           setGlassRipple({
-            x: edgeX + (edge === 'left' ? 5 : edge === 'right' ? 70 : 35),
-            y: edgeY + 35,
+            x: edge === 'left' ? 10 : edge === 'right' ? window.innerWidth - 12 : edgeX + 40,
+            y: edge === 'top' ? 70 : edge === 'bottom' ? window.innerHeight - 15 : edgeY + 38,
           });
 
           playGlassTapSound();
           setTimeout(() => playGlassTapSound(), 170);
           setTimeout(() => playGlassTapSound(), 340);
-          setQuackBubble('*tap tap*');
+          setQuackBubble('*tap tap!*');
 
           setTimeout(() => {
             if (!isBusyAnticRef.current) return;
@@ -973,14 +1053,24 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               if (!isBusyAnticRef.current) return;
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-            }, 800);
-          }, 850);
-        }, 500);
+              anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+            }, 700);
+          }, 800);
+        }, walkDuration * 1000);
       }
-    }, 18000 + Math.random() * 10000);
+    };
 
-    return () => clearInterval(anticInterval);
-  }, [pos, tourOpen, caughtOpen, approachMessage]);
+    runNextAnticRef.current = runNextAntic;
+
+    // Kick off first antic quickly (within 2 seconds) so the user experiences it immediately!
+    anticTimerRef.current = setTimeout(runNextAntic, 2000);
+
+    return () => {
+      if (anticTimerRef.current) {
+        clearTimeout(anticTimerRef.current);
+      }
+    };
+  }, [pos, tourOpen, caughtOpen]);
 
   // Pointer drag event handlers (enables smooth touch dragging on phones as well as mouse dragging on desktop)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -1068,6 +1158,12 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       playQuackSound(1.05);
       setQuackBubble('QUACK!');
       setTimeout(() => setQuackBubble(null), 800);
+
+      // Reschedule next autonomous antic after user finishes moving duck
+      if (anticTimerRef.current) clearTimeout(anticTimerRef.current);
+      anticTimerRef.current = setTimeout(() => {
+        runNextAnticRef.current();
+      }, 6500);
     } else {
       setIsDraggingDuck(false);
       isDraggingRef.current = false;
@@ -1078,13 +1174,21 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
     if (e) e.stopPropagation();
     if (justDraggedRef.current || isDraggingRef.current) return;
 
+    if (isBusyAnticRef.current) {
+      isBusyAnticRef.current = false;
+      setIsPecking(false);
+      setQuackBubble(null);
+      setGlassRipple(null);
+      setNibbleCrumbs([]);
+    }
+
     playQuackSound(0.95);
     setIsWaddling(true);
     setApproachMessage(null);
     setTimeout(() => {
       setIsWaddling(false);
       setDirection('side');
-    }, 500);
+    }, 450);
 
     if (tourOpen) {
       handleNextTourStep();
@@ -1170,15 +1274,14 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         }
         @keyframes duck-peck-action {
           0% { transform: translateY(0px) rotate(0deg); }
-          22% { transform: translate(7px, 11px) rotate(22deg); }
-          40% { transform: translate(1px, 2px) rotate(6deg); }
-          62% { transform: translate(9px, 14px) rotate(28deg); }
-          80% { transform: translate(2px, 3px) rotate(8deg); }
+          22% { transform: translate(10px, 12px) rotate(24deg); }
+          40% { transform: translate(2px, 3px) rotate(6deg); }
+          62% { transform: translate(14px, 16px) rotate(28deg); }
+          80% { transform: translate(3px, 4px) rotate(8deg); }
           100% { transform: translateY(0px) rotate(0deg); }
         }
         .duck-peck-anim {
-          animation: duck-peck-action 0.42s infinite ease-in-out;
-          transform-origin: 25% 85%;
+          animation: duck-peck-action 0.38s infinite ease-in-out;
         }
       `}</style>
 
@@ -1312,7 +1415,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
           position: 'fixed',
           left: `${pos.x}px`,
           top: `${pos.y}px`,
-          transition: isWaddling && !isDraggingDuck ? 'left 0.35s ease-out, top 0.35s ease-out' : 'none',
+          transition: isWaddling && !isDraggingDuck ? `left ${moveDuration}s linear, top ${moveDuration}s linear` : 'none',
           zIndex: 60,
           touchAction: 'none',
         }}
@@ -1338,8 +1441,8 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
             }`}
           />
 
-          {/* Waddling Hop & Pecking Wrapper - separates vertical bobbing/pecking from directional scaleX flip */}
-          <div className={`${isWaddling ? 'duck-walk-hop-anim' : ''} ${isPecking ? 'duck-peck-anim' : ''}`}>
+          {/* Waddling Hop & Direction Flip Wrapper */}
+          <div className={isWaddling ? 'duck-walk-hop-anim' : ''}>
             <div
               style={{
                 transform: direction === 'side' && facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
@@ -1347,18 +1450,26 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               }}
               className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
             >
-              {/* Stepping Duck Sprite Frame */}
-              <img
-                src={getCurrentDuckImage()}
-                alt="Adult Duck"
-                className="w-full h-full object-contain filter drop-shadow-sm pointer-events-none select-none"
-                draggable={false}
-              />
+              {/* Pecking animation nested inside direction container so rotation drives beak forward into target */}
+              <div
+                className={`w-full h-full relative ${isPecking ? 'duck-peck-anim' : ''}`}
+                style={{
+                  transformOrigin: '35% 85%',
+                }}
+              >
+                {/* Stepping Duck Sprite Frame */}
+                <img
+                  src={getCurrentDuckImage()}
+                  alt="Adult Duck"
+                  className="w-full h-full object-contain filter drop-shadow-sm pointer-events-none select-none"
+                  draggable={false}
+                />
 
-              {/* Dynamic Costume Accessories based on current active tab */}
-              {activeTab === 'cooking' && <ChefCostume direction={direction} />}
-              {activeTab === 'trips' && <TravelerCostume direction={direction} />}
-              {activeTab === 'photos' && <PhotographerCostume direction={direction} />}
+                {/* Dynamic Costume Accessories based on current active tab */}
+                {activeTab === 'cooking' && <ChefCostume direction={direction} />}
+                {activeTab === 'trips' && <TravelerCostume direction={direction} />}
+                {activeTab === 'photos' && <PhotographerCostume direction={direction} />}
+              </div>
             </div>
           </div>
         </div>
