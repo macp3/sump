@@ -70,7 +70,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     .slice(0, 6);
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-6 sm:space-y-8 pb-12 sm:pb-16">
       {/* 1. Love Counter Banner */}
       <LoveCounter />
 
@@ -78,14 +78,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       <MissYouCard />
 
       {/* 3. Editorial Letter / Missive Card */}
-      <section className="relative arch-surface p-8 sm:p-12 border border-[#e5e0d4] shadow-xs">
+      <section className="relative arch-surface p-5 sm:p-8 md:p-12 border border-[#e5e0d4] shadow-xs">
         {/* Corner drafting crosshairs */}
         <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
         <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
         <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
 
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-5 sm:space-y-6">
           <div className="flex items-center justify-between pb-3 border-b border-[#e5e0d4]/80">
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
               [ 03 // A LETTER ]
@@ -94,13 +94,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
           {/* Salutation */}
           <div className="pt-2">
-            <p className="font-serif-editorial text-2xl sm:text-3xl text-[#181c24] font-medium tracking-wide">
+            <p className="font-serif-editorial text-xl sm:text-2xl md:text-3xl text-[#181c24] font-medium tracking-wide">
               Dearest Selina,
             </p>
           </div>
 
-          {/* Letter Body - Lorem Ipsum Placeholder */}
-          <div className="space-y-4 font-serif-editorial text-lg sm:text-xl text-stone-700 leading-relaxed font-light">
+          {/* Letter Body */}
+          <div className="space-y-3.5 sm:space-y-4 font-serif-editorial text-base sm:text-lg md:text-xl text-stone-700 leading-relaxed font-light">
             <p>
               In the past 1.5 years I havent been acting right towards you. I didnt show you that I care and I didnt put enough effort into our relationship, especially into assuring you that you are someone special to me.
             </p>
@@ -119,11 +119,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           {/* Sign-off */}
-          <div className="pt-6 text-right border-t border-[#e5e0d4]/60">
-            <p className="font-serif-editorial text-xl sm:text-2xl text-[#181c24] italic">
+          <div className="pt-5 sm:pt-6 text-right border-t border-[#e5e0d4]/60">
+            <p className="font-serif-editorial text-lg sm:text-xl md:text-2xl text-[#181c24] italic">
               Always yours,
             </p>
-            <p className="font-serif-editorial text-lg text-stone-800 font-medium mt-1">
+            <p className="font-serif-editorial text-base sm:text-lg text-stone-800 font-medium mt-1">
               Maciej
             </p>
           </div>
@@ -132,7 +132,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
       {/* 4. Upcoming Events (Next 6 Future Events) */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-[#e5e0d4]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#e5e0d4]">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
               [ 04 // UPCOMING EVENTS ]
@@ -140,7 +140,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
           <button
             onClick={() => onNavigateToCalendar()}
-            className="text-xs font-mono-tech uppercase tracking-wider text-stone-500 hover:text-[#9c7526] flex items-center gap-1.5 transition-colors font-medium"
+            className="text-xs font-mono-tech uppercase tracking-wider text-stone-500 hover:text-[#9c7526] flex items-center gap-1.5 transition-colors font-medium self-start sm:self-auto"
           >
             Open Calendar <ArrowRight className="w-3 h-3" />
           </button>
@@ -177,7 +177,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 <div
                   key={evt.id}
                   onClick={() => onNavigateToCalendar(evt)}
-                  className={`cursor-pointer arch-card p-5 hover:border-[#b58c38] transition-all flex flex-col justify-between border ${color.border} ${color.bg}`}
+                  className={`cursor-pointer arch-card p-3.5 sm:p-5 hover:border-[#b58c38] transition-all flex flex-col justify-between border ${color.border} ${color.bg}`}
                 >
                   <div>
                     {/* Top Row: Author with Larger Photo & Color Dot */}

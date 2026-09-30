@@ -60,14 +60,14 @@ export const MissYouCard: React.FC = () => {
     : null;
 
   return (
-    <div className="relative arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs">
+    <div className="relative arch-surface p-4 sm:p-6 md:p-8 border border-[#e5e0d4] shadow-xs">
       {/* Corner drafting crosshairs */}
       <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
       <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
       <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
       <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
 
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
@@ -75,11 +75,11 @@ export const MissYouCard: React.FC = () => {
             </span>
           </div>
 
-          <h3 className="text-2xl sm:text-3xl font-normal text-[#181c24] font-serif-editorial">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-normal text-[#181c24] font-serif-editorial">
             Thinking of You
           </h3>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[11px] font-mono-tech text-stone-400">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 sm:mt-2 text-[10px] sm:text-[11px] font-mono-tech text-stone-400">
             {formattedPartnerLastSent && (
               <span>
                 Last from {partnerName}: <strong className="text-stone-700 font-medium">{formattedPartnerLastSent}</strong>
@@ -89,23 +89,23 @@ export const MissYouCard: React.FC = () => {
         </div>
 
         {/* Counter Display & Action Button */}
-        <div className="flex items-center gap-4 sm:gap-6 w-full md:w-auto justify-between md:justify-end">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6 w-full md:w-auto">
           {/* Partner's Miss Counter Card */}
-          <div className="bg-[#fbf9f4] border border-[#e5e0d4] px-5 py-3 text-center min-w-[130px] shadow-xs">
-            <span className="text-3xl sm:text-4xl font-light text-[#9c7526] font-serif-editorial block leading-none">
+          <div className="bg-[#fbf9f4] border border-[#e5e0d4] px-4 sm:px-5 py-2.5 sm:py-3 text-center min-w-0 sm:min-w-[130px] shadow-xs">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-light text-[#9c7526] font-serif-editorial block leading-none">
               {partnerCount}
             </span>
-            <span className="text-[9px] uppercase tracking-[0.2em] font-mono-tech text-stone-500 mt-1.5 block font-medium">
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] font-mono-tech text-stone-500 mt-1 block font-medium">
               Missed by {partnerName}
             </span>
           </div>
 
           {/* Action Button: I miss you */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center flex-1 sm:flex-initial">
             <button
               onClick={handleSendMissYou}
               disabled={isSending}
-              className={`px-5 py-3 text-xs font-mono-tech uppercase tracking-wider font-semibold flex items-center gap-2 transition-all shadow-xs ${
+              className={`w-full sm:w-auto px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-mono-tech uppercase tracking-wider font-semibold flex items-center justify-center gap-2 transition-all shadow-xs ${
                 justSent
                   ? 'bg-emerald-700 text-white'
                   : 'bg-[#181c24] hover:bg-[#2c323f] text-white active:scale-98'
@@ -124,7 +124,7 @@ export const MissYouCard: React.FC = () => {
               )}
             </button>
 
-            <span className="text-[10px] font-mono-tech text-stone-400 mt-1.5">
+            <span className="text-[9px] sm:text-[10px] font-mono-tech text-stone-400 mt-1 sm:mt-1.5 text-center">
               You clicked {myCount} {myCount === 1 ? 'time' : 'times'}
             </span>
           </div>

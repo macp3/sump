@@ -74,14 +74,14 @@ export const LoveCounter: React.FC = () => {
   };
 
   return (
-    <div className="relative arch-surface p-6 md:p-8 border border-[#e5e0d4]">
+    <div className="relative arch-surface p-4 sm:p-6 md:p-8 border border-[#e5e0d4]">
       {/* Corner drafting crosshairs */}
       <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
       <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
       <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
       <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
 
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[10px] font-mono-tech text-[#9c7526] uppercase tracking-[0.25em] font-semibold">
@@ -110,39 +110,39 @@ export const LoveCounter: React.FC = () => {
         </div>
 
         {/* Metric Grid */}
-        <div className="grid grid-cols-4 gap-2.5 sm:gap-3.5 w-full lg:w-auto font-mono-tech">
-          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-4 text-center min-w-[75px] sm:min-w-[95px] shadow-xs">
-            <span className="text-3xl sm:text-4xl font-light text-[#181c24] font-serif-editorial block">
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-3.5 w-full lg:w-auto font-mono-tech">
+          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-2 sm:p-4 text-center min-w-0 flex-1 shadow-xs">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-light text-[#181c24] font-serif-editorial block">
               {timeTogether.days}
             </span>
-            <span className="text-[9px] uppercase tracking-[0.25em] text-stone-500 mt-1 block font-medium">
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.25em] text-stone-500 mt-0.5 sm:mt-1 block font-medium">
               Days
             </span>
           </div>
 
-          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-4 text-center min-w-[75px] sm:min-w-[95px] shadow-xs">
-            <span className="text-3xl sm:text-4xl font-light text-[#181c24] font-serif-editorial block">
+          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-2 sm:p-4 text-center min-w-0 flex-1 shadow-xs">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-light text-[#181c24] font-serif-editorial block">
               {timeTogether.hours}
             </span>
-            <span className="text-[9px] uppercase tracking-[0.25em] text-stone-500 mt-1 block font-medium">
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.25em] text-stone-500 mt-0.5 sm:mt-1 block font-medium">
               Hours
             </span>
           </div>
 
-          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-4 text-center min-w-[75px] sm:min-w-[95px] shadow-xs">
-            <span className="text-3xl sm:text-4xl font-light text-[#181c24] font-serif-editorial block">
+          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-2 sm:p-4 text-center min-w-0 flex-1 shadow-xs">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-light text-[#181c24] font-serif-editorial block">
               {timeTogether.minutes}
             </span>
-            <span className="text-[9px] uppercase tracking-[0.25em] text-stone-500 mt-1 block font-medium">
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.25em] text-stone-500 mt-0.5 sm:mt-1 block font-medium">
               Minutes
             </span>
           </div>
 
-          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-4 text-center min-w-[75px] sm:min-w-[95px] shadow-xs">
-            <span className="text-3xl sm:text-4xl font-light text-[#9c7526] font-serif-editorial block">
+          <div className="bg-[#fbf9f4] border border-[#e5e0d4] p-2 sm:p-4 text-center min-w-0 flex-1 shadow-xs">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-light text-[#9c7526] font-serif-editorial block">
               {timeTogether.seconds}
             </span>
-            <span className="text-[9px] uppercase tracking-[0.25em] text-stone-500 mt-1 block font-medium">
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.25em] text-stone-500 mt-0.5 sm:mt-1 block font-medium">
               Seconds
             </span>
           </div>

@@ -171,15 +171,15 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
         <div
           key={cloneDay.toISOString()}
           onClick={() => handleSelectDay(cloneDay)}
-          className={`min-h-[90px] sm:min-h-[110px] p-2 border-b border-r border-[#e5e0d4] transition-all cursor-pointer flex flex-col justify-between ${
+          className={`min-h-[58px] sm:min-h-[105px] p-1 sm:p-2 border-b border-r border-[#e5e0d4] transition-all cursor-pointer flex flex-col justify-between ${
             !isCurrentMonth ? 'bg-[#faf8f4] text-stone-300' : 'bg-white text-stone-800'
           } ${isSelected ? 'ring-2 ring-inset ring-[#9c7526] bg-[#fcf9f2]' : 'hover:bg-[#fbf9f4]'}`}
         >
           <div className="flex items-center justify-between">
             <span
-              className={`text-xs font-mono-tech ${
+              className={`text-[11px] sm:text-xs font-mono-tech ${
                 isCurrentDay
-                  ? 'w-6 h-6 bg-[#181c24] text-white flex items-center justify-center font-bold'
+                  ? 'w-5 h-5 sm:w-6 sm:h-6 bg-[#181c24] text-white flex items-center justify-center font-bold'
                   : isSelected
                   ? 'text-[#9c7526] font-bold'
                   : !isCurrentMonth
@@ -195,8 +195,24 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
             )}
           </div>
 
-          {/* Event Snippets on Grid cell (with color dot & title) */}
-          <div className="space-y-1 mt-1 overflow-hidden">
+          {/* Mobile: compact indicator dots */}
+          <div className="flex sm:hidden gap-1 flex-wrap mt-0.5 max-h-5 overflow-hidden">
+            {dayEvents.slice(0, 3).map((e) => {
+              const color = CATEGORY_COLORS[e.category] || CATEGORY_COLORS.date;
+              return (
+                <span
+                  key={`dot-${e.id}`}
+                  className={`w-1.5 h-1.5 rounded-full ${color.dot} shrink-0`}
+                />
+              );
+            })}
+            {dayEvents.length > 3 && (
+              <span className="w-1.5 h-1.5 rounded-full bg-stone-400 shrink-0" />
+            )}
+          </div>
+
+          {/* Desktop/Tablet (sm:block): text pills with color dot & title */}
+          <div className="hidden sm:block space-y-1 mt-1 overflow-hidden">
             {dayEvents.slice(0, 2).map((e) => {
               const color = CATEGORY_COLORS[e.category] || CATEGORY_COLORS.date;
               return (
@@ -238,36 +254,47 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
         {/* Calendar Matrix (2 cols) */}
         <div className="lg:col-span-2 arch-surface border border-[#e5e0d4]">
           {/* Top Bar with Navigation & Add Event Button */}
-          <div className="p-4 sm:p-5 border-b border-[#e5e0d4] flex items-center justify-between font-mono-tech bg-[#fcfbf8]">
-            <div className="flex items-center gap-2">
+          <div className="p-3 sm:p-5 border-b border-[#e5e0d4] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 font-mono-tech bg-[#fcfbf8]">
+            <div className="flex items-center justify-between sm:justify-start gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                  className="p-1.5 sm:p-2 border border-[#e5e0d4] hover:bg-stone-100 text-stone-600 transition-colors"
+                  title="Previous Month"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                  className="p-1.5 sm:p-2 border border-[#e5e0d4] hover:bg-stone-100 text-stone-600 transition-colors"
+                  title="Next Month"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    const now = new Date();
+                    setCurrentMonth(now);
+                    setSelectedDate(now);
+                  }}
+                  className="px-2.5 sm:px-3 py-1.5 border border-[#e5e0d4] text-[11px] sm:text-xs uppercase tracking-wider text-stone-600 hover:bg-stone-100 transition-colors"
+                >
+                  Today
+                </button>
+              </div>
+
+              {/* Mobile Add Event Button */}
               <button
-                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                className="p-2 border border-[#e5e0d4] hover:bg-stone-100 text-stone-600 transition-colors"
-                title="Previous Month"
+                onClick={() => onOpenCreateEventForDay(formattedSelectedDate)}
+                className="sm:hidden px-2.5 py-1.5 bg-[#181c24] hover:bg-[#2c323f] text-white text-[11px] font-mono-tech uppercase tracking-wider font-semibold flex items-center gap-1 shadow-xs"
               >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                className="p-2 border border-[#e5e0d4] hover:bg-stone-100 text-stone-600 transition-colors"
-                title="Next Month"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  const now = new Date();
-                  setCurrentMonth(now);
-                  setSelectedDate(now);
-                }}
-                className="px-3 py-1.5 border border-[#e5e0d4] text-xs uppercase tracking-wider text-stone-600 hover:bg-stone-100 transition-colors"
-              >
-                Today
+                <Plus className="w-3 h-3 text-[#d8b46e]" />
+                Add
               </button>
             </div>
 
-            <div className="flex items-center gap-4">
-              <h3 className="font-serif-editorial text-2xl text-[#181c24] font-medium tracking-wide">
+            <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+              <h3 className="font-serif-editorial text-xl sm:text-2xl text-[#181c24] font-medium tracking-wide">
                 {format(currentMonth, 'MMMM yyyy', { locale: enUS })}
               </h3>
 
@@ -282,7 +309,7 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
           </div>
 
           {/* Days of Week Header */}
-          <div className="grid grid-cols-7 bg-[#f6f4ee] border-b border-[#e5e0d4] font-mono-tech text-[10px] uppercase tracking-widest text-stone-500 py-2.5 text-center font-semibold">
+          <div className="grid grid-cols-7 bg-[#f6f4ee] border-b border-[#e5e0d4] font-mono-tech text-[9px] sm:text-[10px] uppercase tracking-widest text-stone-500 py-2 sm:py-2.5 text-center font-semibold">
             <div>Mon</div>
             <div>Tue</div>
             <div>Wed</div>
@@ -299,10 +326,10 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
         </div>
 
         {/* Selected Day Details Panel (1 col) */}
-        <div className="arch-surface p-6 border border-[#e5e0d4] flex flex-col justify-between space-y-6">
+        <div className="arch-surface p-4 sm:p-6 border border-[#e5e0d4] flex flex-col justify-between space-y-5 sm:space-y-6">
           <div>
-            <div className="pb-4 border-b border-[#e5e0d4]">
-              <h3 className="text-2xl font-normal text-[#181c24] font-serif-editorial">
+            <div className="pb-3 sm:pb-4 border-b border-[#e5e0d4]">
+              <h3 className="text-xl sm:text-2xl font-normal text-[#181c24] font-serif-editorial">
                 {format(selectedDate, 'EEEE, MMMM d', { locale: enUS })}
               </h3>
               <p className="text-xs text-stone-500 font-light mt-0.5">

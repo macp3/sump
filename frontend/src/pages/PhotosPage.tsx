@@ -174,20 +174,20 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
   };
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-6 sm:space-y-8 pb-20">
       {/* 1. Header Banner */}
-      <div className="arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs relative">
+      <div className="arch-surface p-4 sm:p-6 md:p-8 border border-[#e5e0d4] shadow-xs relative">
         <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
         <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
         <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
           <div className="space-y-1">
             <span className="text-[10px] font-mono-tech uppercase tracking-[0.25em] text-[#9c7526] font-semibold">
               [ 05 // PHOTOGRAPHY & MEMORIES ]
             </span>
-            <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium tracking-tight">
+            <h1 className="font-serif-editorial text-2xl sm:text-3xl md:text-4xl text-[#181c24] font-medium tracking-tight">
               Our Visual Memoir
             </h1>
           </div>
@@ -202,7 +202,7 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
                 setUploadError('');
                 setIsUploadModalOpen(true);
               }}
-              className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
+              className="px-4 sm:px-5 py-2 sm:py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
             >
               <Upload className="w-4 h-4" />
               <span>Add from Computer</span>
@@ -211,7 +211,7 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
         </div>
 
         {/* Status Metrics Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 mt-6 border-t border-[#e5e0d4]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-[#e5e0d4]">
           <div className="p-3 bg-[#fcfbf7] border border-[#e5e0d4] flex items-center justify-between">
             <span className="text-xs font-mono-tech uppercase text-stone-500 tracking-wider">
               Total Photographs
@@ -241,11 +241,11 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
       </div>
 
       {/* 2. Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 border-b sm:border-b-0 border-[#e5e0d4] pb-2 sm:pb-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-2 border-b sm:border-b-0 border-[#e5e0d4] pb-2 sm:pb-0 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3.5 py-1.5 text-xs font-mono-tech uppercase tracking-wider transition-all border ${
+            className={`px-3 sm:px-3.5 py-1.5 text-[11px] sm:text-xs font-mono-tech uppercase tracking-wider transition-all border shrink-0 whitespace-nowrap ${
               filter === 'all'
                 ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
                 : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
@@ -255,7 +255,7 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
           </button>
           <button
             onClick={() => setFilter('background')}
-            className={`px-3.5 py-1.5 text-xs font-mono-tech uppercase tracking-wider transition-all border ${
+            className={`px-3 sm:px-3.5 py-1.5 text-[11px] sm:text-xs font-mono-tech uppercase tracking-wider transition-all border shrink-0 whitespace-nowrap ${
               filter === 'background'
                 ? 'bg-[#9c7526] text-white border-[#9c7526] font-semibold shadow-xs'
                 : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
@@ -265,7 +265,7 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
           </button>
           <button
             onClick={() => setFilter('tab')}
-            className={`px-3.5 py-1.5 text-xs font-mono-tech uppercase tracking-wider transition-all border ${
+            className={`px-3 sm:px-3.5 py-1.5 text-[11px] sm:text-xs font-mono-tech uppercase tracking-wider transition-all border shrink-0 whitespace-nowrap ${
               filter === 'tab'
                 ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
                 : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
@@ -584,9 +584,9 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
               />
             </div>
 
-            <div className="w-full flex items-center justify-between pt-3 mt-3 border-t border-stone-200 px-2">
+            <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 mt-3 border-t border-stone-200 px-2">
               <div>
-                <p className="font-serif-editorial text-lg text-[#181c24] font-medium">
+                <p className="font-serif-editorial text-base sm:text-lg text-[#181c24] font-medium">
                   {selectedPhoto.caption || selectedPhoto.original_name || selectedPhoto.filename}
                 </p>
                 <p className="text-[10px] font-mono-tech text-stone-400">
@@ -594,7 +594,7 @@ export const PhotosPage: React.FC<PhotosPageProps> = ({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start sm:self-auto">
                 <button
                   onClick={() => onToggleBackground(selectedPhoto)}
                   className={`px-3 py-1.5 text-[10px] font-mono-tech uppercase tracking-wider rounded font-semibold flex items-center gap-1.5 transition-colors ${

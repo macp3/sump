@@ -332,13 +332,13 @@ export const CookingPage: React.FC = () => {
   return (
     <div className="space-y-8 pb-16">
       {/* Top Banner & Header Card */}
-      <div className="arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs relative">
+      <div className="arch-surface p-4 sm:p-6 md:p-8 border border-[#e5e0d4] shadow-xs relative">
         <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
         <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
         <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#b58c38]" />
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#e5e0d4]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 pb-4 sm:pb-6 border-b border-[#e5e0d4]">
           <div>
             <div className="flex items-center gap-2 text-stone-500 font-mono-tech text-xs uppercase tracking-wider mb-1">
               <ChefHat className="w-4 h-4 text-[#9c7526]" />
@@ -346,7 +346,7 @@ export const CookingPage: React.FC = () => {
                 [ 04 // CULINARY HORIZON ]
               </span>
             </div>
-            <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium tracking-tight">
+            <h1 className="font-serif-editorial text-2xl sm:text-3xl md:text-4xl text-[#181c24] font-medium tracking-tight">
               Cooking & Menu Planning
             </h1>
           </div>
@@ -359,7 +359,7 @@ export const CookingPage: React.FC = () => {
                   setEditingFridgeItem(null);
                   setIsFridgeModalOpen(true);
                 }}
-                className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
+                className="px-4 sm:px-5 py-2 sm:py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Fridge Item</span>
@@ -372,7 +372,7 @@ export const CookingPage: React.FC = () => {
                   setEditingShoppingItem(null);
                   setIsShoppingModalOpen(true);
                 }}
-                className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
+                className="px-4 sm:px-5 py-2 sm:py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add to Shopping List</span>
@@ -386,7 +386,7 @@ export const CookingPage: React.FC = () => {
                   setDefaultDay('monday');
                   setIsMealModalOpen(true);
                 }}
-                className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
+                className="px-4 sm:px-5 py-2 sm:py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center gap-2 transition-all shadow-xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>Propose Meal</span>
@@ -396,10 +396,10 @@ export const CookingPage: React.FC = () => {
         </div>
 
         {/* Main Tab Navigation */}
-        <div className="flex items-center gap-2 pt-4 font-mono-tech text-xs uppercase tracking-wider overflow-x-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 pt-3 sm:pt-4 font-mono-tech text-[11px] sm:text-xs uppercase tracking-wider overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setActiveTab('meals')}
-            className={`px-3.5 py-1.5 border transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 sm:px-3.5 py-1.5 border transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 ${
               activeTab === 'meals'
                 ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
                 : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
@@ -411,7 +411,7 @@ export const CookingPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('fridge')}
-            className={`px-3.5 py-1.5 border transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 sm:px-3.5 py-1.5 border transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 ${
               activeTab === 'fridge'
                 ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
                 : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'
@@ -423,7 +423,7 @@ export const CookingPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('shopping')}
-            className={`px-3.5 py-1.5 border transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 sm:px-3.5 py-1.5 border transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 ${
               activeTab === 'shopping'
                 ? 'bg-[#181c24] text-white border-[#181c24] font-semibold shadow-xs'
                 : 'bg-white text-stone-600 border-[#e5e0d4] hover:border-stone-400'

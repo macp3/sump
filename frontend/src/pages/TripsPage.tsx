@@ -359,7 +359,7 @@ export const TripsPage: React.FC = () => {
     <div className="space-y-8 pb-16">
       {/* Top Banner & Header */}
       {!currentTrip ? (
-        <div className="arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs relative">
+        <div className="arch-surface p-4 sm:p-6 md:p-8 border border-[#e5e0d4] shadow-xs relative">
           <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
           <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
           <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
@@ -373,7 +373,7 @@ export const TripsPage: React.FC = () => {
                   [ 03 // SHARED ADVENTURES ]
                 </span>
               </div>
-              <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium tracking-tight">
+              <h1 className="font-serif-editorial text-2xl sm:text-3xl md:text-4xl text-[#181c24] font-medium tracking-tight">
                 Travel Planner
               </h1>
             </div>
@@ -383,7 +383,7 @@ export const TripsPage: React.FC = () => {
                 setEditingTrip(null);
                 setIsTripModalOpen(true);
               }}
-              className="px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-2 transition-all shadow-xs self-start md:self-auto"
+              className="px-4 sm:px-5 py-2.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-2 transition-all shadow-xs self-start md:self-auto"
             >
               <Plus className="w-4 h-4" />
               <span>Propose New Trip</span>
@@ -392,7 +392,7 @@ export const TripsPage: React.FC = () => {
         </div>
       ) : (
         /* Workspace Header when a trip is selected */
-        <div className="arch-surface p-6 sm:p-8 border border-[#e5e0d4] shadow-xs relative space-y-4">
+        <div className="arch-surface p-4 sm:p-6 md:p-8 border border-[#e5e0d4] shadow-xs relative space-y-4">
           <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#b58c38]" />
           <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#b58c38]" />
           <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#b58c38]" />
@@ -408,7 +408,7 @@ export const TripsPage: React.FC = () => {
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-mono-tech uppercase tracking-wider text-[#9c7526] font-semibold flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5" />
                   {currentTrip.destination}
@@ -440,7 +440,7 @@ export const TripsPage: React.FC = () => {
                 )}
               </div>
 
-              <h1 className="font-serif-editorial text-3xl sm:text-4xl text-[#181c24] font-medium mt-1">
+              <h1 className="font-serif-editorial text-2xl sm:text-3xl md:text-4xl text-[#181c24] font-medium mt-1">
                 {currentTrip.title}
               </h1>
 
@@ -451,11 +451,11 @@ export const TripsPage: React.FC = () => {
             </div>
 
             {/* Quick Actions & Status Select */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <select
                 value={currentTrip.status}
                 onChange={(e) => handleUpdateStatus(currentTrip.id, e.target.value as TripStatus)}
-                className="text-xs font-mono-tech bg-white border border-[#e5e0d4] rounded px-3 py-2 text-stone-700 focus:outline-none focus:border-[#9c7526]"
+                className="text-xs font-mono-tech bg-white border border-[#e5e0d4] rounded px-2.5 sm:px-3 py-1.5 sm:py-2 text-stone-700 focus:outline-none focus:border-[#9c7526]"
               >
                 <option value="idea">Status: Idea (Brainstorming)</option>
                 <option value="planning">Status: Planned (Planning)</option>
@@ -665,10 +665,10 @@ export const TripsPage: React.FC = () => {
         /* 2. Single Trip Detail Workspace */
         <div className="space-y-6">
           {/* Workspace Sub-tabs */}
-          <div className="flex items-center gap-2 border-b border-[#e5e0d4] font-mono-tech text-xs uppercase tracking-wider overflow-x-auto pb-1">
+          <div className="flex items-center gap-1 sm:gap-2 border-b border-[#e5e0d4] font-mono-tech text-[11px] sm:text-xs uppercase tracking-wider overflow-x-auto pb-1 whitespace-nowrap">
             <button
               onClick={() => setActiveTripTab('transport')}
-              className={`px-4 py-2 flex items-center gap-2 relative ${
+              className={`px-3 sm:px-4 py-2 flex items-center gap-1.5 sm:gap-2 relative shrink-0 whitespace-nowrap ${
                 activeTripTab === 'transport'
                   ? 'text-[#9c7526] font-semibold'
                   : 'text-stone-500 hover:text-stone-900'
@@ -683,7 +683,7 @@ export const TripsPage: React.FC = () => {
 
             <button
               onClick={() => setActiveTripTab('lodging')}
-              className={`px-4 py-2 flex items-center gap-2 relative ${
+              className={`px-3 sm:px-4 py-2 flex items-center gap-1.5 sm:gap-2 relative shrink-0 whitespace-nowrap ${
                 activeTripTab === 'lodging'
                   ? 'text-[#9c7526] font-semibold'
                   : 'text-stone-500 hover:text-stone-900'
@@ -698,7 +698,7 @@ export const TripsPage: React.FC = () => {
 
             <button
               onClick={() => setActiveTripTab('itinerary')}
-              className={`px-4 py-2 flex items-center gap-2 relative ${
+              className={`px-3 sm:px-4 py-2 flex items-center gap-1.5 sm:gap-2 relative shrink-0 whitespace-nowrap ${
                 activeTripTab === 'itinerary'
                   ? 'text-[#9c7526] font-semibold'
                   : 'text-stone-500 hover:text-stone-900'
@@ -713,7 +713,7 @@ export const TripsPage: React.FC = () => {
 
             <button
               onClick={() => setActiveTripTab('budget')}
-              className={`px-4 py-2 flex items-center gap-2 relative ${
+              className={`px-3 sm:px-4 py-2 flex items-center gap-1.5 sm:gap-2 relative shrink-0 whitespace-nowrap ${
                 activeTripTab === 'budget'
                   ? 'text-[#9c7526] font-semibold'
                   : 'text-stone-500 hover:text-stone-900'
@@ -730,7 +730,7 @@ export const TripsPage: React.FC = () => {
           {/* TAB 1: Transportation */}
           {activeTripTab === 'transport' && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="font-serif-editorial text-2xl text-[#181c24]">
                     Transit & Travel Options
@@ -745,7 +745,7 @@ export const TripsPage: React.FC = () => {
                     setEditingTransport(null);
                     setIsTransportModalOpen(true);
                   }}
-                  className="px-3 py-1.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider rounded flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-[#181c24] hover:bg-[#2c323f] text-[#fcd34d] text-xs font-mono-tech uppercase tracking-wider rounded flex items-center gap-1.5 self-start sm:self-auto"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Option</span>

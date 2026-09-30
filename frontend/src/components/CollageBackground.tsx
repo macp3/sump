@@ -9,22 +9,22 @@ interface CollageBackgroundProps {
 
 const POSITION_SLOTS = [
   // Left Gutter Column
-  { top: '3%', left: '2%', widthClass: 'w-20 sm:w-26 md:w-32', rotate: -5, anim: 'float-sway-1', duration: 18, delay: -2 },
-  { top: '15%', left: '11%', widthClass: 'w-20 sm:w-24 md:w-30', rotate: 4, anim: 'float-sway-2', duration: 22, delay: -8 },
-  { top: '29%', left: '1.5%', widthClass: 'w-22 sm:w-28 md:w-34', rotate: -7, anim: 'float-sway-3', duration: 19, delay: -11 },
-  { top: '44%', left: '10%', widthClass: 'w-24 sm:w-30 md:w-36', rotate: 5, anim: 'float-sway-1', duration: 21, delay: -3 },
-  { top: '59%', left: '2%', widthClass: 'w-20 sm:w-26 md:w-32', rotate: -4, anim: 'float-sway-2', duration: 25, delay: -1 },
-  { top: '73%', left: '11%', widthClass: 'w-22 sm:w-28 md:w-32', rotate: 6, anim: 'float-sway-3', duration: 20, delay: -13 },
-  { top: '86%', left: '2.5%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: -6, anim: 'float-sway-1', duration: 23, delay: -7 },
+  { top: '3%', left: '2%', widthClass: 'w-14 sm:w-26 md:w-32', rotate: -5, anim: 'float-sway-1', duration: 18, delay: -2 },
+  { top: '15%', left: '11%', widthClass: 'w-18 sm:w-24 md:w-30', rotate: 4, anim: 'float-sway-2', duration: 22, delay: -8, className: 'hidden sm:block' },
+  { top: '29%', left: '1.5%', widthClass: 'w-14 sm:w-28 md:w-34', rotate: -7, anim: 'float-sway-3', duration: 19, delay: -11 },
+  { top: '44%', left: '10%', widthClass: 'w-20 sm:w-30 md:w-36', rotate: 5, anim: 'float-sway-1', duration: 21, delay: -3, className: 'hidden sm:block' },
+  { top: '59%', left: '2%', widthClass: 'w-14 sm:w-26 md:w-32', rotate: -4, anim: 'float-sway-2', duration: 25, delay: -1 },
+  { top: '73%', left: '11%', widthClass: 'w-18 sm:w-28 md:w-32', rotate: 6, anim: 'float-sway-3', duration: 20, delay: -13, className: 'hidden sm:block' },
+  { top: '86%', left: '2.5%', widthClass: 'w-18 sm:w-26 md:w-30', rotate: -6, anim: 'float-sway-1', duration: 23, delay: -7, className: 'hidden sm:block' },
 
   // Right Gutter Column
-  { top: '4%', left: '88%', widthClass: 'w-18 sm:w-24 md:w-28', rotate: 4, anim: 'float-sway-2', duration: 20, delay: -14 },
-  { top: '17%', left: '80%', widthClass: 'w-18 sm:w-24 md:w-28', rotate: -6, anim: 'float-sway-3', duration: 24, delay: -5 },
-  { top: '31%', left: '89%', widthClass: 'w-16 sm:w-22 md:w-26', rotate: 5, anim: 'float-sway-1', duration: 23, delay: -16 },
-  { top: '45%', left: '81%', widthClass: 'w-18 sm:w-24 md:w-28', rotate: -4, anim: 'float-sway-2', duration: 17, delay: -9 },
-  { top: '59%', left: '89%', widthClass: 'w-20 sm:w-26 md:w-32', rotate: 7, anim: 'float-sway-3', duration: 18, delay: -18 },
-  { top: '73%', left: '81%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: -5, anim: 'float-sway-1', duration: 26, delay: -4 },
-  { top: '86%', left: '88%', widthClass: 'w-22 sm:w-28 md:w-32', rotate: 3, anim: 'float-sway-2', duration: 21, delay: -15 },
+  { top: '4%', left: '88%', widthClass: 'w-14 sm:w-24 md:w-28', rotate: 4, anim: 'float-sway-2', duration: 20, delay: -14 },
+  { top: '17%', left: '80%', widthClass: 'w-16 sm:w-24 md:w-28', rotate: -6, anim: 'float-sway-3', duration: 24, delay: -5, className: 'hidden sm:block' },
+  { top: '31%', left: '89%', widthClass: 'w-14 sm:w-22 md:w-26', rotate: 5, anim: 'float-sway-1', duration: 23, delay: -16 },
+  { top: '45%', left: '81%', widthClass: 'w-16 sm:w-24 md:w-28', rotate: -4, anim: 'float-sway-2', duration: 17, delay: -9, className: 'hidden sm:block' },
+  { top: '59%', left: '89%', widthClass: 'w-14 sm:w-26 md:w-32', rotate: 7, anim: 'float-sway-3', duration: 18, delay: -18 },
+  { top: '73%', left: '81%', widthClass: 'w-18 sm:w-26 md:w-30', rotate: -5, anim: 'float-sway-1', duration: 26, delay: -4, className: 'hidden sm:block' },
+  { top: '86%', left: '88%', widthClass: 'w-18 sm:w-28 md:w-32', rotate: 3, anim: 'float-sway-2', duration: 21, delay: -15, className: 'hidden sm:block' },
 
   // Transitional / Accent Snapshots (positioned gracefully below Navbar and above footer)
   { top: '11%', left: '24%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: -3, anim: 'float-sway-3', duration: 23, delay: -7, className: 'hidden sm:block' },
@@ -36,6 +36,9 @@ const POSITION_SLOTS = [
 ];
 
 const isSlotVisible = (slotIdx: number, width: number) => {
+  if (width < 640) {
+    return [0, 2, 4, 7, 9, 11].includes(slotIdx);
+  }
   if (slotIdx < 14) return true;
   if (slotIdx < 16) return width >= 640;
   if (slotIdx < 18) return width >= 768;

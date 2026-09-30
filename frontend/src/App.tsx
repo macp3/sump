@@ -102,7 +102,7 @@ const MainLayout: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-10 pointer-events-none">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8 relative z-10 pointer-events-none">
         <div className="pointer-events-auto">
           {activeTab === 'dashboard' && (
             <DashboardPage

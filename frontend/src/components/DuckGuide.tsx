@@ -923,7 +923,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
                 transform: direction === 'side' && facingLeft ? 'scaleX(-1)' : 'scaleX(1)',
                 transformOrigin: 'center bottom',
               }}
-              className="relative w-24 h-24 sm:w-28 sm:h-28"
+              className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
             >
               {/* Stepping Duck Sprite Frame */}
               <img
