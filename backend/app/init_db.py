@@ -12,6 +12,17 @@ from app.models.photo import Photo
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+
+    # Ensure avatar_url column exists in users table for existing databases
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN avatar_url VARCHAR(255)"))
+            conn.commit()
+    except Exception:
+        # Column already exists or freshly created
+        pass
+
     db: Session = SessionLocal()
     try:
         # Check if users already exist

@@ -106,6 +106,21 @@ class ApiClient {
     });
   }
 
+  async uploadAvatar(file: File): Promise<User> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request('/users/avatar', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async removeAvatar(): Promise<User> {
+    return this.request('/users/avatar', {
+      method: 'DELETE',
+    });
+  }
+
   // --- Dates / Itinerary ---
   async getDates(status?: string, category?: string): Promise<DateProposal[]> {
     const params = new URLSearchParams();

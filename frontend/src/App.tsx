@@ -9,6 +9,7 @@ import { CookingPage } from './pages/CookingPage';
 import { PhotosPage } from './pages/PhotosPage';
 import { CreateCalendarEventModal } from './components/CreateCalendarEventModal';
 import { PasswordChangeModal } from './components/PasswordChangeModal';
+import { ChangeAvatarModal } from './components/ChangeAvatarModal';
 import { DuckGuide } from './components/DuckGuide';
 import { CollageBackground } from './components/CollageBackground';
 import { api } from './api/client';
@@ -48,6 +49,7 @@ const MainLayout: React.FC = () => {
   // Modals state
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
   const [isPasswordChangeOpen, setIsPasswordChangeOpen] = useState(false);
+  const [isChangeAvatarOpen, setIsChangeAvatarOpen] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null);
   const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
 
@@ -99,6 +101,7 @@ const MainLayout: React.FC = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenPasswordChange={() => setIsPasswordChangeOpen(true)}
+        onOpenChangeAvatar={() => setIsChangeAvatarOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -172,6 +175,11 @@ const MainLayout: React.FC = () => {
       <PasswordChangeModal
         isOpen={isPasswordChangeOpen}
         onClose={() => setIsPasswordChangeOpen(false)}
+      />
+
+      <ChangeAvatarModal
+        isOpen={isChangeAvatarOpen}
+        onClose={() => setIsChangeAvatarOpen(false)}
       />
     </div>
   );

@@ -18,19 +18,21 @@ interface NavbarProps {
   activeTab: 'dashboard' | 'calendar' | 'trips' | 'cooking' | 'photos';
   setActiveTab: (tab: 'dashboard' | 'calendar' | 'trips' | 'cooking' | 'photos') => void;
   onOpenPasswordChange: () => void;
+  onOpenChangeAvatar: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   onOpenPasswordChange,
+  onOpenChangeAvatar,
 }) => {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   const isSelina = user?.username?.toLowerCase().includes('selina') || user?.display_name?.toLowerCase().includes('selina');
-  const userPhoto = isSelina ? selinaAvatar : maciejAvatar;
+  const userPhoto = user?.avatar_url || (isSelina ? selinaAvatar : maciejAvatar);
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#f6f4ee]/95 backdrop-blur-md border-b border-[#e5e0d4]">
@@ -152,6 +154,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <p className="text-[10px] text-stone-400 font-mono-tech uppercase tracking-wider mt-1.5">Logged In</p>
                   </div>
                 </div>
+
+                <button
+                  onClick={() => {
+                    setIsUserDropdownOpen(false);
+                    onOpenChangeAvatar();
+                  }}
+                  className="w-full text-left px-3 py-2 text-stone-700 hover:text-stone-950 hover:bg-stone-50 flex items-center gap-2 transition-colors uppercase tracking-wider text-[11px]"
+                >
+                  <Camera className="w-3.5 h-3.5 text-stone-400" />
+                  Change Photo
+                </button>
 
                 <button
                   onClick={() => {

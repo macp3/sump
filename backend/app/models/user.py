@@ -11,6 +11,7 @@ class User(Base):
     display_name = Column(String(100), nullable=False)
     hashed_password = Column(String(255), nullable=False)
     avatar_color = Column(String(30), default="stone")
+    avatar_url = Column(String(255), nullable=True)
     current_mood = Column(String(150), nullable=True)
     last_active_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

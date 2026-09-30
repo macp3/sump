@@ -351,7 +351,7 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({
                   const color = CATEGORY_COLORS[e.category] || CATEGORY_COLORS.date;
                   const author = e.creator?.display_name || 'Maciej';
                   const isAuthorSelina = author.toLowerCase().includes('selina');
-                  const authorPhoto = isAuthorSelina ? selinaAvatar : maciejAvatar;
+                  const authorPhoto = e.creator?.avatar_url || (isAuthorSelina ? selinaAvatar : maciejAvatar);
                   const isTarget = targetEventId === e.id;
 
                   return (

@@ -171,7 +171,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               const color = CATEGORY_COLORS[evt.category] || CATEGORY_COLORS.date;
               const authorName = evt.creator?.display_name || 'Maciej';
               const isAuthorSelina = authorName.toLowerCase().includes('selina');
-              const authorPhoto = isAuthorSelina ? selinaAvatar : maciejAvatar;
+              const authorPhoto = evt.creator?.avatar_url || (isAuthorSelina ? selinaAvatar : maciejAvatar);
 
               return (
                 <div

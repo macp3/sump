@@ -3,6 +3,7 @@ export interface User {
   username: string;
   display_name: string;
   avatar_color: string;
+  avatar_url?: string;
   current_mood?: string;
   last_active_at?: string;
   created_at: string;

@@ -11,6 +11,8 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   updateMood: (mood: string, color?: string) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<User>;
+  removeAvatar: () => Promise<User>;
   refreshPair: () => Promise<void>;
   refreshConfig: () => Promise<void>;
 }
@@ -115,6 +117,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('sump_user', JSON.stringify(updated));
   };
 
+  const uploadAvatar = async (file: File): Promise<User> => {
+    const updated = await api.uploadAvatar(file);
+    setUser(updated);
+    localStorage.setItem('sump_user', JSON.stringify(updated));
+    return updated;
+  };
+
+  const removeAvatar = async (): Promise<User> => {
+    const updated = await api.removeAvatar();
+    setUser(updated);
+    localStorage.setItem('sump_user', JSON.stringify(updated));
+    return updated;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -126,6 +142,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         updateMood,
+        uploadAvatar,
+        removeAvatar,
         refreshPair,
         refreshConfig,
       }}
