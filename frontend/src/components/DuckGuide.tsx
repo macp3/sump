@@ -764,26 +764,65 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       });
 
       // Assemble candidates pool
-      const anticPool: Array<'card' | 'photo' | 'edge' | 'nip_cursor'> = ['card', 'card', 'edge'];
+      const anticPool: Array<'approach_cursor' | 'card' | 'photo' | 'edge' | 'nip_cursor'> = ['card', 'edge'];
       if (photoEls.length > 0) {
         anticPool.push('photo', 'photo');
       }
 
-      // Add sneaky cursor nip if user actively moved mouse within 8 seconds and on desktop
-      const recentMouseMove = Date.now() - lastMouseMoveTimeRef.current < 8000;
+      // Add cursor interaction if desktop and mouse is active
+      const recentMouseMove = Date.now() - lastMouseMoveTimeRef.current < 35000;
       const isHoverCapable = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-      if (recentMouseMove && isHoverCapable) {
+      if (isHoverCapable && recentMouseMove) {
+        // Friendly approach to cursor (as requested by user)
+        anticPool.push('approach_cursor', 'approach_cursor');
         anticPool.push('nip_cursor');
       }
 
       const chosen = anticPool[Math.floor(Math.random() * anticPool.length)];
 
-      if (chosen === 'photo' && photoEls.length > 0) {
+      if (chosen === 'approach_cursor') {
+        const mouse = lastMousePosRef.current;
+        const sideOffset = Math.random() > 0.5 ? 85 : -85;
+        const approachX = Math.max(30, Math.min(mouse.x + sideOffset, window.innerWidth - 100));
+        const approachY = Math.max(60, Math.min(mouse.y + (Math.random() * 40 - 20), window.innerHeight - 100));
+
+        const dist = Math.hypot(approachX - pos.x, approachY - pos.y);
+        const walkDuration = Math.max(0.5, Math.min(2.4, dist / 190));
+        setMoveDuration(walkDuration);
+
+        isBusyAnticRef.current = true;
+        isMovingRef.current = true;
+        setIsWaddling(true);
+        updateDirection(pos.x, pos.y, approachX, approachY);
+        setPos({ x: approachX, y: approachY });
+
+        playQuackSound(1.05);
+
+        setTimeout(() => {
+          if (!isBusyAnticRef.current) return;
+          setIsWaddling(false);
+          isMovingRef.current = false;
+          setFacingLeft(pos.x > mouse.x);
+          setDirection('side');
+
+          const randomMsg = SPONTANEOUS_MESSAGES[Math.floor(Math.random() * SPONTANEOUS_MESSAGES.length)];
+          setApproachMessage(randomMsg);
+          playQuackSound(1.15);
+
+          setTimeout(() => {
+            if (!isBusyAnticRef.current) return;
+            setApproachMessage(null);
+            isBusyAnticRef.current = false;
+            anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
+          }, 3500);
+        }, walkDuration * 1000);
+
+      } else if (chosen === 'photo' && photoEls.length > 0) {
         const targetEl = photoEls[Math.floor(Math.random() * photoEls.length)];
         const photoId = Number(targetEl.dataset.photoId);
         const currentSlot = Number(targetEl.dataset.slotIdx || 0);
         if (!photoId) {
-          anticTimerRef.current = setTimeout(runNextAntic, 4000);
+          anticTimerRef.current = setTimeout(runNextAntic, 5000);
           return;
         }
 
@@ -850,7 +889,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
                 if (!isBusyAnticRef.current) return;
                 setQuackBubble(null);
                 isBusyAnticRef.current = false;
-                anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+                anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
               }, 700);
             }, 600);
           }, 750);
@@ -874,7 +913,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
         });
 
         if (candidates.length === 0) {
-          anticTimerRef.current = setTimeout(runNextAntic, 3000);
+          anticTimerRef.current = setTimeout(runNextAntic, 5000);
           return;
         }
 
@@ -928,7 +967,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               if (!isBusyAnticRef.current) return;
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-              anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+              anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
             }, 700);
           }, 850);
         }, walkDuration * 1000);
@@ -986,7 +1025,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               setIsWaddling(false);
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-              anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+              anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
             }, 600);
           }, 450);
         }, walkDuration * 1000);
@@ -1053,7 +1092,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
               if (!isBusyAnticRef.current) return;
               setQuackBubble(null);
               isBusyAnticRef.current = false;
-              anticTimerRef.current = setTimeout(runNextAntic, 6500 + Math.random() * 4500);
+              anticTimerRef.current = setTimeout(runNextAntic, 22000 + Math.random() * 16000);
             }, 700);
           }, 800);
         }, walkDuration * 1000);
@@ -1062,8 +1101,8 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
 
     runNextAnticRef.current = runNextAntic;
 
-    // Kick off first antic quickly (within 2 seconds) so the user experiences it immediately!
-    anticTimerRef.current = setTimeout(runNextAntic, 2000);
+    // Peaceful initial delay (10-14 seconds after mount)
+    anticTimerRef.current = setTimeout(runNextAntic, 10000 + Math.random() * 4000);
 
     return () => {
       if (anticTimerRef.current) {
@@ -1080,6 +1119,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       isBusyAnticRef.current = false;
       setIsPecking(false);
       setQuackBubble(null);
+      setApproachMessage(null);
       setGlassRipple(null);
       setNibbleCrumbs([]);
     }
@@ -1163,7 +1203,7 @@ export const DuckGuide: React.FC<DuckGuideProps> = ({ activeTab = 'dashboard' })
       if (anticTimerRef.current) clearTimeout(anticTimerRef.current);
       anticTimerRef.current = setTimeout(() => {
         runNextAnticRef.current();
-      }, 6500);
+      }, 18000 + Math.random() * 8000);
     } else {
       setIsDraggingDuck(false);
       isDraggingRef.current = false;
