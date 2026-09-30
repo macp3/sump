@@ -102,55 +102,57 @@ const MainLayout: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-10">
-        {activeTab === 'dashboard' && (
-          <DashboardPage
-            onNavigateToCalendar={(evt) => {
-              if (evt) {
-                setTargetCalendarEventId(evt.id);
-                setTargetCalendarDate(evt.event_date);
-              } else {
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-10 pointer-events-none">
+        <div className="pointer-events-auto">
+          {activeTab === 'dashboard' && (
+            <DashboardPage
+              onNavigateToCalendar={(evt) => {
+                if (evt) {
+                  setTargetCalendarEventId(evt.id);
+                  setTargetCalendarDate(evt.event_date);
+                } else {
+                  setTargetCalendarEventId(null);
+                  setTargetCalendarDate(null);
+                }
+                setActiveTab('calendar');
+              }}
+              onOpenCreateEvent={() => {
+                setSelectedCalendarDate(null);
+                setIsCreateEventOpen(true);
+              }}
+            />
+          )}
+
+          {activeTab === 'calendar' && (
+            <CalendarPage
+              onOpenCreateEventForDay={handleOpenEventForDay}
+              onNavigateToTrips={() => setActiveTab('trips')}
+              targetEventId={targetCalendarEventId}
+              initialDate={targetCalendarDate}
+              onClearTargetEvent={() => {
                 setTargetCalendarEventId(null);
                 setTargetCalendarDate(null);
-              }
-              setActiveTab('calendar');
-            }}
-            onOpenCreateEvent={() => {
-              setSelectedCalendarDate(null);
-              setIsCreateEventOpen(true);
-            }}
-          />
-        )}
+              }}
+              refreshKey={calendarRefreshKey}
+            />
+          )}
 
-        {activeTab === 'calendar' && (
-          <CalendarPage
-            onOpenCreateEventForDay={handleOpenEventForDay}
-            onNavigateToTrips={() => setActiveTab('trips')}
-            targetEventId={targetCalendarEventId}
-            initialDate={targetCalendarDate}
-            onClearTargetEvent={() => {
-              setTargetCalendarEventId(null);
-              setTargetCalendarDate(null);
-            }}
-            refreshKey={calendarRefreshKey}
-          />
-        )}
+          {activeTab === 'trips' && (
+            <TripsPage />
+          )}
 
-        {activeTab === 'trips' && (
-          <TripsPage />
-        )}
+          {activeTab === 'cooking' && (
+            <CookingPage />
+          )}
 
-        {activeTab === 'cooking' && (
-          <CookingPage />
-        )}
-
-        {activeTab === 'photos' && (
-          <PhotosPage
-            photos={photos}
-            onPhotosChange={loadPhotos}
-            onToggleBackground={handleTogglePhotoBackground}
-          />
-        )}
+          {activeTab === 'photos' && (
+            <PhotosPage
+              photos={photos}
+              onPhotosChange={loadPhotos}
+              onToggleBackground={handleTogglePhotoBackground}
+            />
+          )}
+        </div>
       </main>
 
       {/* Persistent Atelier Companion Duck Guide */}

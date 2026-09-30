@@ -26,13 +26,13 @@ const POSITION_SLOTS = [
   { top: '73%', left: '81%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: -5, anim: 'float-sway-1', duration: 26, delay: -4 },
   { top: '86%', left: '88%', widthClass: 'w-22 sm:w-28 md:w-32', rotate: 3, anim: 'float-sway-2', duration: 21, delay: -15 },
 
-  // Transitional / Accent Snapshots
-  { top: '5%', left: '24%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: -3, anim: 'float-sway-3', duration: 23, delay: -7, className: 'hidden sm:block' },
-  { top: '6%', left: '70%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: 4, anim: 'float-sway-1', duration: 19, delay: -12, className: 'hidden sm:block' },
-  { top: '86%', left: '22%', widthClass: 'w-24 sm:w-30 md:w-36', rotate: 3, anim: 'float-sway-2', duration: 25, delay: -10, className: 'hidden md:block' },
-  { top: '86%', left: '72%', widthClass: 'w-22 sm:w-28 md:w-32', rotate: -5, anim: 'float-sway-3', duration: 20, delay: -17, className: 'hidden md:block' },
-  { top: '2%', left: '44%', widthClass: 'w-24 sm:w-30 md:w-36', rotate: -2, anim: 'float-sway-1', duration: 22, delay: -5, className: 'hidden lg:block' },
-  { top: '88%', left: '48%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: 4, anim: 'float-sway-2', duration: 24, delay: -14, className: 'hidden lg:block' },
+  // Transitional / Accent Snapshots (positioned gracefully below Navbar and above footer)
+  { top: '11%', left: '24%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: -3, anim: 'float-sway-3', duration: 23, delay: -7, className: 'hidden sm:block' },
+  { top: '11%', left: '70%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: 4, anim: 'float-sway-1', duration: 19, delay: -12, className: 'hidden sm:block' },
+  { top: '84%', left: '22%', widthClass: 'w-24 sm:w-30 md:w-36', rotate: 3, anim: 'float-sway-2', duration: 25, delay: -10, className: 'hidden md:block' },
+  { top: '84%', left: '72%', widthClass: 'w-22 sm:w-28 md:w-32', rotate: -5, anim: 'float-sway-3', duration: 20, delay: -17, className: 'hidden md:block' },
+  { top: '11%', left: '44%', widthClass: 'w-24 sm:w-30 md:w-36', rotate: -2, anim: 'float-sway-1', duration: 22, delay: -5, className: 'hidden lg:block' },
+  { top: '85%', left: '48%', widthClass: 'w-20 sm:w-26 md:w-30', rotate: 4, anim: 'float-sway-2', duration: 24, delay: -14, className: 'hidden lg:block' },
 ];
 
 const isSlotVisible = (slotIdx: number, width: number) => {
@@ -105,6 +105,32 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
     });
   }, [activePhotos]);
 
+  const startDrag = (
+    photoId: number,
+    clientX: number,
+    clientY: number,
+    pointerId: number,
+    element: HTMLElement
+  ) => {
+    try {
+      element.setPointerCapture(pointerId);
+    } catch {}
+
+    const rect = element.getBoundingClientRect();
+    const currentSlotIndex = photoSlotMap[photoId] ?? 0;
+
+    dragStartRef.current = {
+      id: photoId,
+      startX: clientX,
+      startY: clientY,
+      sourceSlotIndex: currentSlotIndex,
+      pointerId: pointerId,
+      itemStartRect: rect,
+    };
+    setDraggingId(photoId);
+    setHoveredSlotIndex(currentSlotIndex);
+  };
+
   const handlePointerDown = (photoId: number, e: React.PointerEvent<HTMLDivElement>) => {
     // If clicked on action button (e.g. "To Tab"), let button handle it
     if ((e.target as HTMLElement).closest('button')) {
@@ -112,23 +138,52 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
     }
 
     e.preventDefault();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-
-    const el = itemRefs.current.get(photoId);
-    const startRect = el ? el.getBoundingClientRect() : e.currentTarget.getBoundingClientRect();
-    const currentSlotIndex = photoSlotMap[photoId] ?? 0;
-
-    dragStartRef.current = {
-      id: photoId,
-      startX: e.clientX,
-      startY: e.clientY,
-      sourceSlotIndex: currentSlotIndex,
-      pointerId: e.pointerId,
-      itemStartRect: startRect,
-    };
-    setDraggingId(photoId);
-    setHoveredSlotIndex(currentSlotIndex);
+    startDrag(photoId, e.clientX, e.clientY, e.pointerId, e.currentTarget);
   };
+
+  // Global capture listener allows grabbing photos behind page content or between cards
+  useEffect(() => {
+    const handleGlobalPointerDown = (e: PointerEvent) => {
+      if (dragStartRef.current) return;
+
+      const target = e.target as HTMLElement | null;
+      // Do not intercept clicks on interactive UI controls, buttons, forms, nav, or modals
+      if (
+        target?.closest(
+          'button, a, input, textarea, select, [role="button"], [draggable="true"], header, nav, dialog, [role="dialog"], .duck-companion'
+        )
+      ) {
+        return;
+      }
+
+      const clickX = e.clientX;
+      const clickY = e.clientY;
+
+      // Pick topmost matching photo
+      for (let i = activePhotos.length - 1; i >= 0; i--) {
+        const photo = activePhotos[i];
+        const el = itemRefs.current.get(photo.id);
+        if (!el) continue;
+
+        const rect = el.getBoundingClientRect();
+        if (
+          clickX >= rect.left &&
+          clickX <= rect.right &&
+          clickY >= rect.top &&
+          clickY <= rect.bottom
+        ) {
+          e.preventDefault();
+          startDrag(photo.id, e.clientX, e.clientY, e.pointerId, el);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('pointerdown', handleGlobalPointerDown, { capture: true });
+    return () => {
+      window.removeEventListener('pointerdown', handleGlobalPointerDown, { capture: true });
+    };
+  }, [activePhotos, photoSlotMap]);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragStartRef.current) return;
@@ -323,9 +378,34 @@ export const CollageBackground: React.FC<CollageBackgroundProps> = ({
     }
   };
 
+  // Window drag listeners ensure smooth movement across all content cards and viewport edges
+  useEffect(() => {
+    if (draggingId === null) return;
+
+    const onWindowPointerMove = (e: PointerEvent) => {
+      handlePointerMove(e as any);
+    };
+
+    const onWindowPointerUp = (e: PointerEvent) => {
+      handlePointerUp(e as any);
+    };
+
+    window.addEventListener('pointermove', onWindowPointerMove);
+    window.addEventListener('pointerup', onWindowPointerUp);
+    window.addEventListener('pointercancel', onWindowPointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', onWindowPointerMove);
+      window.removeEventListener('pointerup', onWindowPointerUp);
+      window.removeEventListener('pointercancel', onWindowPointerUp);
+    };
+  }, [draggingId]);
+
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none bg-[#f6f4ee]"
+      className={`fixed inset-0 pointer-events-none overflow-hidden select-none bg-[#f6f4ee] ${
+        draggingId !== null ? 'z-50' : 'z-0'
+      }`}
       aria-hidden="true"
     >
       <style>{`
