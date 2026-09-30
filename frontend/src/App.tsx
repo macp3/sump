@@ -42,10 +42,10 @@ const MainLayout: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <>
+      <div className="min-h-screen relative overflow-hidden">
         <CollageBackground />
         <LoginPage />
-      </>
+      </div>
     );
   }
 
@@ -61,7 +61,7 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-[#181c24] flex flex-col selection:bg-[#b58c38]/20 selection:text-[#735213]">
+    <div className="min-h-screen bg-transparent text-[#181c24] flex flex-col selection:bg-[#b58c38]/20 selection:text-[#735213] relative">
       <CollageBackground />
       {/* Top Header */}
       <Navbar
@@ -71,7 +71,7 @@ const MainLayout: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-10">
         {activeTab === 'dashboard' && (
           <DashboardPage
             onNavigateToCalendar={(evt) => {
